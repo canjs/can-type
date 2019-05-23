@@ -95,7 +95,7 @@ function convert(Type, val) {
 
 var Any = canReflect.assignSymbols({}, {
 	"can.new": function(val) { return val; },
-	"can.isMember": function() { return true }
+	"can.isMember": function() { return true; }
 });
 
 exports.check = createNoMaybe(check);
