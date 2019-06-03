@@ -1,0 +1,21 @@
+@function can-type/check check
+@parent can-type
+@description Create a strictly typed TypeObject.
+
+@signature `type.check(Type)`
+
+Given a type, provide a [can-type.typeobject] to check values against. Throws if another type is provided as a value.
+
+```js
+import { Reflect, type } from "can/everything";
+
+let val = Reflect.convert(new Date(), type.check(Date));
+// Date()
+
+val = Reflect.convert("12/14/1933", type.check(Date));
+// throws for providing an invalid type.
+```
+
+@param {Function} Type A constructor function that values will be checked against.
+
+@return {can-type.typeobject} A [can-type.typeobject] which will strictly enforce values of the provided type.
