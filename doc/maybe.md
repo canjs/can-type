@@ -1,5 +1,5 @@
 @function can-type/maybe maybe
-@parent can-type
+@parent can-type/methods 1
 @description Create a strictly typed TypeObject that also accepts `null` and `undefined` values.
 
 @signature `type.maybe(Type)`
