@@ -1,5 +1,5 @@
 @function can-type/maybeConvert maybeConvert
-@parent can-type
+@parent can-type/methods 3
 @description Create a converting [can-type.typeobject] that also accepts `null` and `undefined`.
 
 @signature `type.maybe(Type)`

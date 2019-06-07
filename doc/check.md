@@ -1,5 +1,5 @@
 @function can-type/check check
-@parent can-type
+@parent can-type/methods 0
 @description Create a strictly typed TypeObject.
 
 @signature `type.check(Type)`

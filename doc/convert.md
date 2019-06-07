@@ -1,5 +1,5 @@
 @function can-type/convert convert
-@parent can-type
+@parent can-type/methods 2
 @description Create a coercing [can-type.typeobject].
 
 @signature `type.convert(Type)`
