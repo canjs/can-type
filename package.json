@@ -2,10 +2,10 @@
   "name": "can-type",
   "version": "0.1.5",
   "description": "Type definitions",
-  "homepage": "https://github.com/canjs/can-type",
+  "homepage": "https://canjs.com/doc/can-type.html",
   "repository": {
     "type": "git",
-    "url": "git://github.com/DoneJS/can-type.git"
+    "url": "git://github.com/canjs/can-type"
   },
   "author": {
     "name": "DoneJS Contributors",
