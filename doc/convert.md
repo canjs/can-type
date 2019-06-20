@@ -4,7 +4,7 @@
 
 @signature `type.convert(Type)`
 
-Given a type, provide a [can-type.typeobject] to coerce values to.
+Given a type, returns a [can-type.typeobject] that will coerce values to that type.
 
 ```js
 import { Reflect, type } from "can/everything";

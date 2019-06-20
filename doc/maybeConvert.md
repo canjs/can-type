@@ -4,7 +4,7 @@
 
 @signature `type.maybe(Type)`
 
-Given a type, provide a [can-type.typeobject] to check values against. Coerces if the value is not of the provided type or `null` or `undefined`.
+Given a type, returns a [can-type.typeobject] that will check values against that type. Coerces if the value is not of the provided type or `null` or `undefined`.
 
 ```js
 import { Reflect, type } from "can/everything";
