@@ -1,6 +1,6 @@
 # can-type
 
-[![Build Status](https://travis-ci.org/DoneJS/can-type.svg?branch=master)](https://travis-ci.org/DoneJS/can-type)
+[![Build Status](https://travis-ci.org/DoneJS/can-type.svg?branch=master)](https://travis-ci.org/DoneJS/can-type) [![Greenkeeper badge](https://badges.greenkeeper.io/canjs/can-type.svg)](https://greenkeeper.io/)
 
 Type definitions
 
