@@ -36,9 +36,9 @@
   "devDependencies": {
     "jshint": "^2.9.1",
     "steal": "^2.1.6",
-    "steal-qunit": "^1.0.1",
+    "steal-qunit": "^2.0.0",
     "steal-tools": "^2.0.9",
-    "testee": "^0.8.1",
+    "testee": "^0.9.1",
     "generator-donejs": "^3.0.0",
     "donejs-cli": "^3.0.0-pre.5",
     "done-serve": "^3.0.0"
