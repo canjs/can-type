@@ -1,6 +1,6 @@
 {
   "name": "can-type",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Type definitions",
   "homepage": "https://canjs.com/doc/can-type.html",
   "repository": {
@@ -14,20 +14,17 @@
   },
   "scripts": {
     "preversion": "npm test",
-    "version": "git commit -am \"Update version number\"",
     "postpublish": "git push --tags && git push",
     "testee": "testee test.html --browsers firefox",
     "test": "npm run jshint && npm run testee",
     "jshint": "jshint ./*.js --config",
     "release:patch": "npm version patch && npm publish",
     "release:minor": "npm version minor && npm publish",
-    "release:major": "npm version major && npm publish",
-    "develop": "done-serve --static --develop --port 8080"
+    "release:major": "npm version major && npm publish"
   },
   "main": "can-type.js",
   "keywords": [
     "canjs",
-    "donejs-plugin",
     "types"
   ],
   "dependencies": {
@@ -38,10 +35,7 @@
     "steal": "^2.1.6",
     "steal-qunit": "^2.0.0",
     "steal-tools": "^2.0.9",
-    "testee": "^0.9.1",
-    "generator-donejs": "^3.0.0",
-    "donejs-cli": "^3.0.0-pre.5",
-    "done-serve": "^3.0.0"
+    "testee": "^0.9.1"
   },
   "license": "MIT"
 }

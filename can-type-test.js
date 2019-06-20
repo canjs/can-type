@@ -4,31 +4,33 @@ var QUnit = require("steal-qunit");
 
 QUnit.module('can-type - Type methods');
 
-function equal(result, expected) {
-	QUnit.equal(expected, result, "Result matches expected");
+function equal(assert, result, expected) {
+	assert.equal(expected, result, "Result matches expected");
 }
 
-function strictEqual(result, expected) {
-	QUnit.strictEqual(expected, result, "Result matches expected strictly");
+function strictEqual(assert, result, expected) {
+	assert.strictEqual(expected, result, "Result matches expected strictly");
 }
 
-function isNaN(result) {
-	QUnit.assert.ok(Number.isNaN(result), "Is NaN value");
+function isNaN(assert, result) {
+	assert.ok(Number.isNaN(result), "Is NaN value");
 }
 
-function ok(reason) {
-	QUnit.assert.ok(true, reason ||  "Expected to throw");
+function ok(assert, reason) {
+	assert.ok(true, reason ||  "Expected to throw");
 }
 
-var throwsBecauseOfWrongType = ok.bind(null, "Throws when the wrong type is provided");
+function throwsBecauseOfWrongType(assert) {
+	ok(assert, "Throws when the wrong type is provided");
+}
 
 var checkIsNaN = {
 	check: isNaN
 };
 
 var checkDateMatchesNumber = {
-	check: function(date, num) {
-		QUnit.assert.strictEqual(date.getTime(), num, "Converted number to date");
+	check: function(assert, date, num) {
+		assert.strictEqual(date.getTime(), num, "Converted number to date");
 	}
 };
 
@@ -82,20 +84,20 @@ testCases.forEach(function(testCase) {
 		var valueName = typeof value === "string" ? ("\"" + value + "\"") : value;
 		var testName = typeName + " - " + methodName + " - " + valueName;
 
-		QUnit.test(testName, function() {
+		QUnit.test(testName, function(assert) {
 			var TypeDefinition = type[methodName](Type);
 
 			try {
 				var result = canReflect.convert(value, TypeDefinition);
 
 				if(testCase[methodName] && testCase[methodName].check) {
-					testCase[methodName].check(result, value);
+					testCase[methodName].check(assert, result, value);
 				} else {
-					definition.check(result, value);
+					definition.check(assert, result, value);
 				}
 			} catch(err) {
 				if(definition.throws) {
-					definition.throws(value, err);
+					definition.throws(assert);
 				} else {
 					throw err;
 				}
