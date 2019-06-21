@@ -4,18 +4,20 @@
 
 @signature `type.convert(Type)`
 
-Given a type, returns a [can-type.typeobject] that will coerce values to that type.
+  Given a type, returns a [can-type.typeobject] that will coerce values to that type.
 
-```js
-import { Reflect, type } from "can/everything";
+  ```js
+  import { Reflect, type } from "can/everything";
 
-let val = Reflect.convert(new Date(), type.convert(Date));
-// Date()
+  let date = new Date();
+  let val = Reflect.convert(date, type.convert(Date));
+  console.log(val); // date
 
-val = Reflect.convert("12/14/1933", type.convert(Date));
-// Date(1933, 12, 14)
-```
+  val = Reflect.convert("12/14/1933", type.convert(Date));
+  console.log(val); // Date{12/14/1933}
+  ```
+  @codepen
 
-@param {Function} Type A constructor function that values will be checked against.
+  @param {Function} Type A constructor function that values will be checked against.
 
-@return {can-type.typeobject} A [can-type.typeobject] which will *coerce* values to the provided type.
+  @return {can-type.typeobject} A [can-type.typeobject] which will *coerce* values to the provided type.

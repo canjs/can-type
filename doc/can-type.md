@@ -23,11 +23,9 @@ import { Reflect, type } from "can/everything";
 const StringType = type.check(String);
 
 let val = Reflect.convert("hello world", StringType);
-console.log(val);
-// -> hello world
+console.log(val); // -> hello world
 
-Reflect.convert(42, StringType);
-// throws!
+Reflect.convert(42, StringType); // throws!
 ```
 @codepen
 
@@ -40,17 +38,16 @@ import { Reflect, type } from "can/everything";
 
 const NumberType = type.maybe(Number);
 
-Reflect.convert(42, NumberType);
-// -> 42
+let val = Reflect.convert(42, NumberType);
+console.log(val); // -> 42
 
-Reflect.convert(null, NumberType);
-// -> null
+val = Reflect.convert(null, NumberType);
+console.log(val); // -> null
 
-Reflect.convert(undefined, NumberType);
-// -> undefined
+val = Reflect.convert(undefined, NumberType);
+console.log(val); // -> undefined
 
-Reflect.convert("hello world", NumberType);
-// throws!
+Reflect.convert("hello world", NumberType); // throws!
 ```
 @codepen
 
@@ -63,8 +60,8 @@ import { Reflect, type } from "can/everything";
 
 const NumberType = type.convert(Number);
 
-Reflect.convert("42", NumberType);
-// -> 42
+let val = Reflect.convert("42", NumberType);
+console.log(val); // -> 42
 ```
 @codepen
 
@@ -79,17 +76,17 @@ const DateType = type.maybeConvert(Date);
 
 const date = new Date();
 
-Reflect.convert(date, DateType);
-// -> date
+let val = Reflect.convert(date, DateType);
+console.log(val); // -> date
 
-Reflect.convert(null, DateType);
-// -> null
+val = Reflect.convert(null, DateType);
+console.log(val); // -> null
 
-Reflect.convert(undefined, DateType);
-// -> undefined
+val = Reflect.convert(undefined, DateType);
+console.log(val); // -> undefined
 
-Reflect.convert("12/04/1433", DateType);
-// -> Date(1433, 12, 04)
+val = Reflect.convert("12/04/1433", DateType);
+console.log(val); // -> Date{12/04/1433}
 ```
 @codepen
 
@@ -117,7 +114,7 @@ let fib = new Person({
   birthday: undefined
 });
 
-console.log( fib ); // ->Person{ ... }
+console.log(fib); // ->Person{ ... }
 ```
 @codepen
 
