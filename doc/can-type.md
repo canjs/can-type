@@ -13,22 +13,6 @@ Use can-type to define rules around types to handle type checking and type conve
 
 can-type specifies the following type functions:
 
-### type.check
-
-Use [can-type/check] to specify a strongly typed [can-type.typeobject] that verifies the value passed is of the same type.
-
-```js
-import { Reflect, type } from "can/everything";
-
-const StringType = type.check(String);
-
-let val = Reflect.convert("hello world", StringType);
-console.log(val); // -> hello world
-
-Reflect.convert(42, StringType); // throws!
-```
-@codepen
-
 ### type.maybe
 
 Use [can-type/maybe] to specify a [can-type.typeobject] which will accept a value that is a member of the provided type, or is `undefined` or `null`.
@@ -87,6 +71,22 @@ console.log(val); // -> undefined
 
 val = Reflect.convert("12/04/1433", DateType);
 console.log(val); // -> Date{12/04/1433}
+```
+@codepen
+
+### type.check
+
+Use [can-type/check] to specify a strongly typed [can-type.typeobject] that verifies the value passed is of the same type.
+
+```js
+import { Reflect, type } from "can/everything";
+
+const StringType = type.check(String);
+
+let val = Reflect.convert("hello world", StringType);
+console.log(val); // -> hello world
+
+Reflect.convert(42, StringType); // throws!
 ```
 @codepen
 
