@@ -13,24 +13,6 @@ Use can-type to define rules around types to handle type checking and type conve
 
 can-type specifies the following type functions:
 
-### type.check
-
-Use [can-type/check] to specify a strongly typed [can-type.typeobject] that verifies the value passed is of the same type.
-
-```js
-import { Reflect, type } from "can/everything";
-
-const StringType = type.check(String);
-
-let val = Reflect.convert("hello world", StringType);
-console.log(val);
-// -> hello world
-
-Reflect.convert(42, StringType);
-// throws!
-```
-@codepen
-
 ### type.maybe
 
 Use [can-type/maybe] to specify a [can-type.typeobject] which will accept a value that is a member of the provided type, or is `undefined` or `null`.
@@ -40,17 +22,16 @@ import { Reflect, type } from "can/everything";
 
 const NumberType = type.maybe(Number);
 
-Reflect.convert(42, NumberType);
-// -> 42
+let val = Reflect.convert(42, NumberType);
+console.log(val); // -> 42
 
-Reflect.convert(null, NumberType);
-// -> null
+val = Reflect.convert(null, NumberType);
+console.log(val); // -> null
 
-Reflect.convert(undefined, NumberType);
-// -> undefined
+val = Reflect.convert(undefined, NumberType);
+console.log(val); // -> undefined
 
-Reflect.convert("hello world", NumberType);
-// throws!
+Reflect.convert("hello world", NumberType); // throws!
 ```
 @codepen
 
@@ -63,8 +44,8 @@ import { Reflect, type } from "can/everything";
 
 const NumberType = type.convert(Number);
 
-Reflect.convert("42", NumberType);
-// -> 42
+let val = Reflect.convert("42", NumberType);
+console.log(val); // -> 42
 ```
 @codepen
 
@@ -79,17 +60,33 @@ const DateType = type.maybeConvert(Date);
 
 const date = new Date();
 
-Reflect.convert(date, DateType);
-// -> date
+let val = Reflect.convert(date, DateType);
+console.log(val); // -> date
 
-Reflect.convert(null, DateType);
-// -> null
+val = Reflect.convert(null, DateType);
+console.log(val); // -> null
 
-Reflect.convert(undefined, DateType);
-// -> undefined
+val = Reflect.convert(undefined, DateType);
+console.log(val); // -> undefined
 
-Reflect.convert("12/04/1433", DateType);
-// -> Date(1433, 12, 04)
+val = Reflect.convert("12/04/1433", DateType);
+console.log(val); // -> Date{12/04/1433}
+```
+@codepen
+
+### type.check
+
+Use [can-type/check] to specify a strongly typed [can-type.typeobject] that verifies the value passed is of the same type.
+
+```js
+import { Reflect, type } from "can/everything";
+
+const StringType = type.check(String);
+
+let val = Reflect.convert("hello world", StringType);
+console.log(val); // -> hello world
+
+Reflect.convert(42, StringType); // throws!
 ```
 @codepen
 
@@ -117,7 +114,7 @@ let fib = new Person({
   birthday: undefined
 });
 
-console.log( fib ); // ->Person{ ... }
+console.log(fib); // ->Person{ ... }
 ```
 @codepen
 
@@ -175,4 +172,25 @@ increment();
 
 > Note: Having both `type: type.check(Number)` and `default: 0` in the same definition is redundant. Using `default: 0` will automatically set up type checking. It is shown above for clarity.
 
-See [can-stache-define-element] and [can-define-object] for more on its API.
+See [can-stache-define-element] and [can-define-object] for more on these APIs.
+
+## How it works
+
+The `can-type` methods work by creating functions that are compatible with [can-reflect.convert canReflect.convert].
+
+These functions have a [can-symbol/symbols/new] Symbol that points to a function that is responsible for creating an instance of the type. The following is an overview of how this function works:
+
+__1. Determine if value is already the correct type__
+
+- Maybe types (`type.maybe`, `type.maybeConvert`) will return `true` if the value is `null` or `undefined`.
+- Common primitive types (`Number`, `String`, `Boolean`) will return `true` if [typeof](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof) returns the correct result.
+- Other types will return `true` if the value is an [instanceof](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/instanceof) the type.
+- [can-type.typeobject TypeObjects] (or anything with a `can.isMember` Symbol) will return `true` if the `can.isMember` function returns `true`.
+- Otherwise, the value is not the correct type.
+
+__2. Handle values of another type__
+
+If the value is not the correct type:
+
+- `type.maybe` and `type.check` will throw an error.
+- `type.convert` and `type.maybeConvert` will convert the value using [can-reflect.convert].

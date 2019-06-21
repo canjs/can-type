@@ -4,30 +4,33 @@
 
 @signature `type.Any`
 
-Like an [identity function](https://en.wikipedia.org/wiki/Identity_function), `type.Any` is a [can-type.typeobject] that allows any type of a value to be allowed without checking or coercion.
+  Like an [identity function](https://en.wikipedia.org/wiki/Identity_function), `type.Any` is a [can-type.typeobject] that allows any type of a value to be allowed without checking or coercion.
 
-```js
-import { Reflect, type } from "can/ecosystem";
+  ```js
+  import { Reflect, type } from "can/everything";
 
-Reflect.convert(42, type.Any);
-// -> 42
+  let val = Reflect.convert(42, type.Any);
+  console.log(val); // -> 42
 
-Reflect.convert(null, type.Any);
-// -> null
+  val = Reflect.convert(null, type.Any);
+  console.log(val); // -> null
 
-Reflect.convert([], type.Any);
-// -> []
+  val = Reflect.convert([], type.Any);
+  console.log(val); // -> []
 
-Reflect.convert(new Date(), type.Any);
-// Date()
-```
+  val = Reflect.convert(new Date(), type.Any);
+  console.log(val); // Date()
+  ```
+  @codepen
 
-`type.Any` returns the same instance as passed into [can-reflect.convert] so they are referentially identical.
+  `type.Any` returns the same instance as passed into [can-reflect.convert] so they are referentially identical.
 
-```js
-import { Reflect, type } from "can/ecosystem";
+  ```js
+  import { Reflect, type } from "can/everything";
 
-let today = new Date();
+  let today = new Date();
 
-let val = Reflect.convert(today, type.Any);
-```
+  let val = Reflect.convert(today, type.Any);
+  console.log(val); // today
+  ```
+  @codepen

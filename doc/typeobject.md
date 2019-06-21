@@ -23,7 +23,7 @@ const dateType = {
   }
 };
 
-Reflect.convert("12/02/1355", dateType);
-// -> Date(1355, 12, 02)
+let val = Reflect.convert("12/02/1355", dateType);
+console.log(val); // -> Date{12/02/1355}
 ```
 @codepen

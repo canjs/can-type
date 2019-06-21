@@ -50,9 +50,9 @@ var createMaybe = makeTypeFactory(function createMaybe(Type, action, isMember) {
 				values: [Type, undefined, null]
 			};
 		},
-			"can.getName": function(){
-					return canReflect.getName(Type);
-			},
+		"can.getName": function(){
+			return canReflect.getName(Type);
+		},
 		"can.isMember": function(value) {
 			return value == null || value instanceof Type || isMember(value);
 		}
@@ -75,9 +75,9 @@ var createNoMaybe = makeTypeFactory(function createNoMaybe(Type, action, isMembe
 				values: [Type]
 			};
 		},
-			"can.getName": function(){
-					return canReflect.getName(Type);
-			},
+		"can.getName": function(){
+			return canReflect.getName(Type);
+		},
 		"can.isMember": function(value) {
 			return value instanceof Type || isMember(value);
 		}
@@ -90,7 +90,6 @@ function check(Type, val) {
 
 function convert(Type, val) {
 	return canReflect.convert(val, Type);
-	//return canReflect.new(Type, val);
 }
 
 var Any = canReflect.assignSymbols({}, {
