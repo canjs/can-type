@@ -1,9 +1,0 @@
-{
-  "generator-donejs": {
-    "promptValues": {
-      "authorName": "DoneJS Contributors",
-      "authorEmail": "core@donejs.com",
-      "authorUrl": "canjs.com"
-    }
-  }
-}
