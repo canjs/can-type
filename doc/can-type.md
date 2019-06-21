@@ -172,4 +172,25 @@ increment();
 
 > Note: Having both `type: type.check(Number)` and `default: 0` in the same definition is redundant. Using `default: 0` will automatically set up type checking. It is shown above for clarity.
 
-See [can-stache-define-element] and [can-define-object] for more on its API.
+See [can-stache-define-element] and [can-define-object] for more on these APIs.
+
+## How it works
+
+The `can-type` methods work by creating functions that are compatible with [can-reflect.convert canReflect.convert].
+
+These functions have a [can-symbol/symbols/new] Symbol that points to a function that is responsible for creating an instance of the type. The following is an overview of how this function works:
+
+__1. Determine if value is already the correct type__
+
+- Maybe types (`type.maybe`, `type.maybeConvert`) will return `true` if the value is `null` or `undefined`.
+- Common primitive types (`Number`, `String`, `Boolean`) will return `true` if [typeof](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof) returns the correct result.
+- Other types will return `true` if the value is an [instanceof](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/instanceof) the type.
+- [can-type.typeobject TypeObjects] (or anything with a `can.isMember` Symbol) will return `true` if the `can.isMember` function returns `true`.
+- Otherwise, the value is not the correct type.
+
+__2. Handle values of another type__
+
+If the value is not the correct type:
+
+- `type.maybe` and `type.check` will throw an error.
+- `type.convert` and `type.maybeConvert` will convert the value using [can-reflect.convert].
