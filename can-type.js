@@ -85,7 +85,7 @@ var createNoMaybe = makeTypeFactory(function createNoMaybe(Type, action, isMembe
 });
 
 function check(Type, val) {
-	throw new Error(`Type value '${val}' is not of type ${canReflect.getName(Type)}.`);
+	throw new Error(`Type value ${typeof val === "string" ? '"' + val + '"' : val} is not of type ${canReflect.getName(Type)}.`);
 }
 
 function convert(Type, val) {
