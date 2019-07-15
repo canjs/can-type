@@ -34,6 +34,14 @@ var checkDateMatchesNumber = {
 	}
 };
 
+var checkBoolean = function (comparison) {
+	return {
+		check: function (assert, result) {
+			assert.strictEqual(result, comparison, "Boolea has correct conversion");
+		}
+	};
+};
+
 var matrix = {
 	check: {
 		check: strictEqual,
@@ -56,6 +64,18 @@ var dateAsNumber = new Date(1815, 11, 10).getTime();
 var testCases = [
 	{ Type: Boolean, value: true },
 	{ Type: Boolean, value: false },
+	{
+		Type: Boolean, value: 'true',
+		maybeConvert: checkBoolean(true),
+		convert: checkBoolean(true),
+	},
+	{
+		Type: Boolean, value: 'false',
+		maybeConvert: checkBoolean(false),
+		convert: checkBoolean(false),
+		maybe: checkBoolean(false),
+		check: checkBoolean(false)
+	},
 	{ Type: Number, value: 23 },
 	{ Type: String, value: "foo" },
 	{
