@@ -10,6 +10,15 @@ var primitives = new Map();
 	});
 });
 
+function makeSchema(values) {
+	return function(){
+		return {
+			type: "Or",
+			values: values
+		};
+	};
+}
+
 function makeTypeFactory(createSchema) {
 	return function makeTypeWithAction(action) {
 		var typeCache = new Map();
@@ -39,17 +48,21 @@ var createMaybe = makeTypeFactory(function createMaybe(Type, action, isMember) {
 		if (val instanceof Type || isMember(val)) {
 			return val;
 		}
+		// Convert `'false'` into `false`
+		if (Type === Boolean && (val === 'false' || val === '0')) {
+			return false;
+		}
 		return action(Type, val);
 	};
 
+	var values = [Type, null, undefined];
+	if (Type === Boolean) {
+		values = [true, false, null, undefined];
+	}
+
 	return canReflect.assignSymbols(createNewOfType, {
 		"can.new": createNewOfType,
-		"can.getSchema": function(){
-			return {
-				type: "Or",
-				values: [Type, undefined, null]
-			};
-		},
+		"can.getSchema": makeSchema(values),
 		"can.getName": function(){
 			return canReflect.getName(Type);
 		},
@@ -64,17 +77,22 @@ var createNoMaybe = makeTypeFactory(function createNoMaybe(Type, action, isMembe
 		if (val instanceof Type || isMember(val)) {
 			return val;
 		}
+		// Convert `'false'` into `false`
+		if (Type === Boolean && (val === 'false' || val === '0')) {
+			console.log('createNoMaybe', 'Boolean === "false"');
+			return false;
+		}
 		return action(Type, val);
 	};
 
+	var values = [Type];
+	if (Type === Boolean) {
+		values = [true, false];
+	}
+
 	return canReflect.assignSymbols(createNewOfType, {
 		"can.new": createNewOfType,
-		"can.getSchema": function(){
-			return {
-				type: "Or",
-				values: [Type]
-			};
-		},
+		"can.getSchema": makeSchema(values),
 		"can.getName": function(){
 			return canReflect.getName(Type);
 		},
