@@ -37,7 +37,7 @@ var checkDateMatchesNumber = {
 var checkBoolean = function (comparison) {
 	return {
 		check: function (assert, result) {
-			assert.strictEqual(result, comparison, "Boolea has correct conversion");
+			assert.strictEqual(result, comparison, "Boolean has been correctly converted");
 		}
 	};
 };
