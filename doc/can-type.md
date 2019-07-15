@@ -1,8 +1,9 @@
-@page can-type
+@module {Object} can-type
 @parent can-data-validation
 @collection can-ecosystem
 @group can-type/methods 0 methods
 @group can-type/types 1 types
+@package ../package.json
 @outline 2
 
 @body
