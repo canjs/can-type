@@ -1,6 +1,6 @@
 {
   "name": "can-type",
-  "version": "0.1.13",
+  "version": "0.2.0",
   "description": "Type definitions",
   "homepage": "https://canjs.com/doc/can-type.html",
   "repository": {
@@ -32,7 +32,6 @@
     "can-symbol": "^1.6.5"
   },
   "devDependencies": {
-
     "jshint": "^2.9.1",
     "steal": "^2.1.6",
     "steal-qunit": "^2.0.0",
