@@ -1,4 +1,10 @@
 var canReflect = require("can-reflect");
+var canSymbol = require("can-symbol");
+
+var isMemberSymbol = canSymbol.for("can.isMember");
+var newSymbol = canSymbol.for("can.new");
+
+var type = exports;
 
 var primitives = new Map();
 [Number, String, Boolean].forEach(function(Type) {
@@ -79,7 +85,6 @@ var createNoMaybe = makeTypeFactory(function createNoMaybe(Type, action, isMembe
 		}
 		// Convert `'false'` into `false`
 		if (Type === Boolean && (val === 'false' || val === '0')) {
-			console.log('createNoMaybe', 'Boolean === "false"');
 			return false;
 		}
 		return action(Type, val);
@@ -110,6 +115,42 @@ function convert(Type, val) {
 	return canReflect.convert(val, Type);
 }
 
+function isTypeObject(Type) {
+	if(canReflect.isPrimitive(Type)) {
+		return false;
+	}
+
+	return (newSymbol in Type) && (isMemberSymbol in Type);
+}
+
+function normalize(Type) {
+	if(canReflect.isPrimitive(Type)) {
+		throw new Error("can-type: Unable to normalize primitive values.");
+	} else if(isTypeObject(Type)) {
+		return Type;
+	} else {
+		return type.check(Type);
+	}
+}
+
+function late(fn) {
+	var lateType = {};
+	var underlyingType;
+	var unwrap = function() {
+		underlyingType = type.normalize(fn());
+		unwrap = function() { return underlyingType; };
+		return underlyingType;
+	};
+	return canReflect.assignSymbols(lateType, {
+		"can.new": function(val) {
+			return canReflect.new(unwrap(), val);
+		},
+		"can.isMember": function(val) {
+			return unwrap()[isMemberSymbol](val);
+		}
+	});
+}
+
 var Any = canReflect.assignSymbols({}, {
 	"can.new": function(val) { return val; },
 	"can.isMember": function() { return true; }
@@ -122,3 +163,6 @@ exports.convert = createNoMaybe(convert);
 exports.maybeConvert = createMaybe(convert);
 
 exports.Any = Any;
+exports.late = late;
+exports.isTypeObject = isTypeObject;
+exports.normalize = normalize;
