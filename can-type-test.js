@@ -186,3 +186,13 @@ QUnit.test("type.normalize takes a Type and returns a TypeObject", function(asse
 		}
 	});
 });
+
+QUnit.test("Should not be able to call new on a TypeObject", function(assert) {
+	var typeObject = type.convert(Number);
+	try {
+		new typeObject();
+		assert.ok(false, "Should not be able to call new");
+	} catch(err) {
+		assert.ok(err, "Got an error calling new");
+	}
+});

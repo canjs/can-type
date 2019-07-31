@@ -47,27 +47,27 @@ function makeTypeFactory(createSchema) {
 }
 
 var createMaybe = makeTypeFactory(function createMaybe(Type, action, isMember) {
-	var createNewOfType = function(val) {
-		if (val == null) {
-			return val;
-		}
-		if (val instanceof Type || isMember(val)) {
-			return val;
-		}
-		// Convert `'false'` into `false`
-		if (Type === Boolean && (val === 'false' || val === '0')) {
-			return false;
-		}
-		return action(Type, val);
-	};
+	var typeObject = {};
 
 	var values = [Type, null, undefined];
 	if (Type === Boolean) {
 		values = [true, false, null, undefined];
 	}
 
-	return canReflect.assignSymbols(createNewOfType, {
-		"can.new": createNewOfType,
+	return canReflect.assignSymbols(typeObject, {
+		"can.new": function(val) {
+			if (val == null) {
+				return val;
+			}
+			if (val instanceof Type || isMember(val)) {
+				return val;
+			}
+			// Convert `'false'` into `false`
+			if (Type === Boolean && (val === 'false' || val === '0')) {
+				return false;
+			}
+			return action(Type, val);
+		},
 		"can.getSchema": makeSchema(values),
 		"can.getName": function(){
 			return canReflect.getName(Type);
@@ -79,24 +79,24 @@ var createMaybe = makeTypeFactory(function createMaybe(Type, action, isMember) {
 });
 
 var createNoMaybe = makeTypeFactory(function createNoMaybe(Type, action, isMember) {
-	var createNewOfType = function(val) {
-		if (val instanceof Type || isMember(val)) {
-			return val;
-		}
-		// Convert `'false'` into `false`
-		if (Type === Boolean && (val === 'false' || val === '0')) {
-			return false;
-		}
-		return action(Type, val);
-	};
+	var typeObject = {};
 
 	var values = [Type];
 	if (Type === Boolean) {
 		values = [true, false];
 	}
 
-	return canReflect.assignSymbols(createNewOfType, {
-		"can.new": createNewOfType,
+	return canReflect.assignSymbols(typeObject, {
+		"can.new": function(val) {
+			if (val instanceof Type || isMember(val)) {
+				return val;
+			}
+			// Convert `'false'` into `false`
+			if (Type === Boolean && (val === 'false' || val === '0')) {
+				return false;
+			}
+			return action(Type, val);
+		},
 		"can.getSchema": makeSchema(values),
 		"can.getName": function(){
 			return canReflect.getName(Type);
