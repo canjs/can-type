@@ -1,4 +1,7 @@
 var canReflect = require("can-reflect");
+var canSymbol = require("can-symbol");
+
+var isMemberSymbol = canSymbol.for("can.isMember");
 
 var primitives = new Map();
 [Number, String, Boolean].forEach(function(Type) {
@@ -79,7 +82,6 @@ var createNoMaybe = makeTypeFactory(function createNoMaybe(Type, action, isMembe
 		}
 		// Convert `'false'` into `false`
 		if (Type === Boolean && (val === 'false' || val === '0')) {
-			console.log('createNoMaybe', 'Boolean === "false"');
 			return false;
 		}
 		return action(Type, val);
@@ -112,7 +114,19 @@ function convert(Type, val) {
 
 function late(fn) {
 	var type = {};
+	var underlyingType;
+	var unwrap = function() {
+		underlyingType = fn();
+		unwrap = function() { return underlyingType; };
+		return underlyingType;
+	}
 	return canReflect.assignSymbols(type, {
+		"can.new": function(val) {
+			return canReflect.new(unwrap(), val);
+		},
+		"can.isMember": function(val) {
+			return unwrap()[isMemberSymbol](val);
+		},
 		"can.unwrapType": function() {
 			return fn();
 		}
