@@ -135,7 +135,54 @@ QUnit.test("type.Any works as an identity", function(assert) {
 
 QUnit.test("type.late(fn) takes a function to define the type later", function(assert) {
 	var theType = type.late(() => type.convert(Number));
-	var realType = theType[canSymbol.for("can.unwrapType")]();
-	var result = canReflect.convert("45", realType);
+	var result = canReflect.convert("45", theType);
 	assert.equal(result, 45, "Defined late but then converted");
+});
+
+QUnit.test("type.late(fn) where the underlying type value is a builtin becomes a strict type", function(assert) {
+	var typeType = type.late(() => Number);
+	var result = canReflect.convert(45, typeType);
+	assert.equal(result, 45, "works with numbers");
+
+	try {
+		canReflect.convert("45", typeType);
+		assert.ok(false, "Should not have thrown");
+	} catch(err) {
+		assert.ok(err, "Got an error becomes it is strict");
+	}
+});
+
+QUnit.test("type.isTypeObject determines if an object is a TypeObject", function(assert) {
+	assert.equal(type.isTypeObject({}), false, "Plain objects are not");
+
+	var myTypeObject = {};
+	myTypeObject[canSymbol.for("can.new")] = function(){};
+	myTypeObject[canSymbol.for("can.isMember")] = function(){};
+	assert.equal(type.isTypeObject(myTypeObject), true, "With the symbols it is");
+
+	var myTypeFunction = function(){};
+	myTypeFunction[canSymbol.for("can.new")] = function(){};
+	myTypeFunction[canSymbol.for("can.isMember")] = function(){};
+	assert.equal(type.isTypeObject(myTypeFunction), true, "functions with the symbols are too");
+
+	assert.equal(type.isTypeObject(null), false, "primitives are not");
+	assert.equal(type.isTypeObject(undefined), false, "undefined is not");
+	assert.equal(type.isTypeObject(23), false, "number primitives too");
+	assert.equal(type.isTypeObject(String), false, "builtin constructors are not");
+});
+
+QUnit.test("type.normalize takes a Type and returns a TypeObject", function(assert) {
+	[String, type.check(String), Date].forEach(function(Type) {
+		var typeObject = type.normalize(Type);
+		var name = canReflect.getName(Type);
+		assert.equal(type.isTypeObject(typeObject), true, "Creates a typeobject for " + name);
+	});
+
+	[12, null, "foobar"].forEach(function(primitive) {
+		try {
+			type.normalize(primitive);
+		} catch(err) {
+			assert.ok(err, "Unable to normalize primitives");
+		}
+	});
 });
