@@ -110,6 +110,15 @@ function convert(Type, val) {
 	return canReflect.convert(val, Type);
 }
 
+function late(fn) {
+	var type = {};
+	return canReflect.assignSymbols(type, {
+		"can.unwrapType": function() {
+			return fn();
+		}
+	});
+}
+
 var Any = canReflect.assignSymbols({}, {
 	"can.new": function(val) { return val; },
 	"can.isMember": function() { return true; }
@@ -122,3 +131,4 @@ exports.convert = createNoMaybe(convert);
 exports.maybeConvert = createMaybe(convert);
 
 exports.Any = Any;
+exports.late = late;

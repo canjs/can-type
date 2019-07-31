@@ -1,3 +1,4 @@
+var canSymbol = require("can-symbol");
 var canReflect = require("can-reflect");
 var type = require("../can-type");
 var QUnit = require("steal-qunit");
@@ -127,7 +128,14 @@ testCases.forEach(function(testCase) {
 });
 
 
-QUnit.test("types.Any works as an identity", function(assert) {
+QUnit.test("type.Any works as an identity", function(assert) {
 	var result = canReflect.convert(45, type.Any);
 	assert.equal(result, 45, "Acts as a identity");
+});
+
+QUnit.test("type.late(fn) takes a function to define the type later", function(assert) {
+	var theType = type.late(() => type.convert(Number));
+	var realType = theType[canSymbol.for("can.unwrapType")]();
+	var result = canReflect.convert("45", realType);
+	assert.equal(result, 45, "Defined late but then converted");
 });

@@ -31,6 +31,7 @@
     "can-reflect": "^1.17.10"
   },
   "devDependencies": {
+    "can-symbol": "^1.6.5",
     "jshint": "^2.9.1",
     "steal": "^2.1.6",
     "steal-qunit": "^2.0.0",
