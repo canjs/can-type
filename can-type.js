@@ -162,6 +162,12 @@ exports.maybe = createMaybe(check);
 exports.convert = createNoMaybe(convert);
 exports.maybeConvert = createMaybe(convert);
 
+// type checking should not throw in production
+if(process.env.NODE_ENV === 'production') {
+	exports.check = exports.convert;
+	exports.maybe = exports.maybeConvert;
+}
+
 exports.Any = Any;
 exports.late = late;
 exports.isTypeObject = isTypeObject;

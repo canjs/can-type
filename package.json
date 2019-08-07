@@ -33,6 +33,7 @@
     "can-symbol": "^1.6.5"
   },
   "devDependencies": {
+    "can-test-helpers": "^1.1.4",
     "jshint": "^2.9.1",
     "steal": "^2.1.6",
     "steal-qunit": "^2.0.0",
