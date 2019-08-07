@@ -2,6 +2,7 @@ var canSymbol = require("can-symbol");
 var canReflect = require("can-reflect");
 var type = require("../can-type");
 var QUnit = require("steal-qunit");
+var dev = require("can-test-helpers").dev;
 
 QUnit.module('can-type - Type methods');
 
@@ -44,14 +45,6 @@ var checkBoolean = function (comparison) {
 };
 
 var matrix = {
-	check: {
-		check: strictEqual,
-		throws: throwsBecauseOfWrongType
-	},
-	maybe: {
-		check: strictEqual,
-		throws: throwsBecauseOfWrongType
-	},
 	convert: {
 		check: equal
 	},
@@ -59,6 +52,20 @@ var matrix = {
 		check: equal
 	}
 };
+
+// type checking should not throw in production
+if(process.env.NODE_ENV !== 'production') {
+	canReflect.assignMap(matrix, {
+		check: {
+			check: strictEqual,
+			throws: throwsBecauseOfWrongType
+		},
+		maybe: {
+			check: strictEqual,
+			throws: throwsBecauseOfWrongType
+		}
+	});
+}
 
 var dateAsNumber = new Date(1815, 11, 10).getTime();
 
@@ -139,7 +146,7 @@ QUnit.test("type.late(fn) takes a function to define the type later", function(a
 	assert.equal(result, 45, "Defined late but then converted");
 });
 
-QUnit.test("type.late(fn) where the underlying type value is a builtin becomes a strict type", function(assert) {
+dev.devOnlyTest("type.late(fn) where the underlying type value is a builtin becomes a strict type", function(assert) {
 	var typeType = type.late(() => Number);
 	var result = canReflect.convert(45, typeType);
 	assert.equal(result, 45, "works with numbers");
@@ -148,7 +155,7 @@ QUnit.test("type.late(fn) where the underlying type value is a builtin becomes a
 		canReflect.convert("45", typeType);
 		assert.ok(false, "Should not have thrown");
 	} catch(err) {
-		assert.ok(err, "Got an error becomes it is strict");
+		assert.ok(err, "Got an error because it is strict");
 	}
 });
 
