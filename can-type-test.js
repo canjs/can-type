@@ -49,7 +49,7 @@ var checkNumber = function(comparison) {
 		check: function(assert, result) {
 			assert.strictEqual(result, comparison, "Number has been correctly converted");
 		}
-	}
+	};
 };
 
 var matrix = {
