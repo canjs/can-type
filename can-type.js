@@ -59,7 +59,8 @@ var createMaybe = makeTypeFactory(function createMaybe(Type, action, isMember) {
 			if (val == null) {
 				return val;
 			}
-			if (val instanceof Type || isMember(val)) {
+			var isInstance = typeof Type === "function" && val instanceof Type;
+			if (isInstance || isMember(val)) {
 				return val;
 			}
 			// Convert `'false'` into `false`
@@ -73,6 +74,9 @@ var createMaybe = makeTypeFactory(function createMaybe(Type, action, isMember) {
 			return canReflect.getName(Type);
 		},
 		"can.isMember": function(value) {
+			if(Type[isMemberSymbol]) {
+				return Type[isMemberSymbol](value);
+			}
 			return value == null || value instanceof Type || isMember(value);
 		}
 	});
@@ -88,7 +92,8 @@ var createNoMaybe = makeTypeFactory(function createNoMaybe(Type, action, isMembe
 
 	return canReflect.assignSymbols(typeObject, {
 		"can.new": function(val) {
-			if (val instanceof Type || isMember(val)) {
+			var isInstance = typeof Type === "function" && val instanceof Type;
+			if (isInstance || isMember(val)) {
 				return val;
 			}
 			// Convert `'false'` into `false`
@@ -102,6 +107,9 @@ var createNoMaybe = makeTypeFactory(function createNoMaybe(Type, action, isMembe
 			return canReflect.getName(Type);
 		},
 		"can.isMember": function(value) {
+			if(Type[isMemberSymbol]) {
+				return Type[isMemberSymbol](value);
+			}
 			return value instanceof Type || isMember(value);
 		}
 	});

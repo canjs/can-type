@@ -44,6 +44,14 @@ var checkBoolean = function (comparison) {
 	};
 };
 
+var checkNumber = function(comparison) {
+	return {
+		check: function(assert, result) {
+			assert.strictEqual(result, comparison, "Number has been correctly converted");
+		}
+	}
+};
+
 var matrix = {
 	convert: {
 		check: equal
@@ -68,6 +76,15 @@ if(process.env.NODE_ENV !== 'production') {
 }
 
 var dateAsNumber = new Date(1815, 11, 10).getTime();
+
+var Integer = {};
+Integer[canSymbol.for("can.new")] = function(val) {
+	return parseInt(val);
+};
+Integer[canSymbol.for("can.isMember")] = function(val) {
+	return Number.isInteger(val);
+};
+canReflect.setName(Integer, "Integer");
 
 var testCases = [
 	{ Type: Boolean, value: true },
@@ -100,6 +117,14 @@ var testCases = [
 		Type: Number, value: "foo",
 		convert: checkIsNaN,
 		maybeConvert: checkIsNaN
+	},
+	{
+		Type: Integer, value: 44
+	},
+	{
+		Type: Integer, value: 44.4,
+		convert: checkNumber(44),
+		maybeConvert: checkNumber(44)
 	}
 ];
 
