@@ -10,7 +10,7 @@
 
 ## Overview
 
-Use can-type to define rules around types to handle type checking and type conversion. Works well with [can-define], [can-define-object], and [can-stache-define-element].
+Use can-type to define rules around types to handle type checking and type conversion. Works well with [can-define], [can-observable-object], and [can-stache-element].
 
 can-type specifies the following type functions:
 
@@ -93,7 +93,7 @@ Reflect.convert(42, StringType); // throws!
 
 ## Creating Models and ViewModels
 
-can-type is useful for creating typed properties in [can-define-object]. You might want to use stricter type checking for some properties or classes and looser type checking for others. The following creates properties with various properties and type methods:
+can-type is useful for creating typed properties in [can-observable-object]. You might want to use stricter type checking for some properties or classes and looser type checking for others. The following creates properties with various properties and type methods:
 
 ```js
 import { DefineObject, type } from "can/everything";
@@ -119,11 +119,11 @@ console.log(fib); // ->Person{ ... }
 ```
 @codepen
 
-> Note: as mentioned in the comment above, type checking is the default behavior of [can-define-object], so `first: type.check(String)` could be written as `first: String`.
+> Note: as mentioned in the comment above, type checking is the default behavior of [can-observable-object], so `first: type.check(String)` could be written as `first: String`.
 
 When creating models with [can-rest-model] you might want to be loose in the typing of properties, especially when working with external services you do not have control over.
 
-On the other hand, when creating ViewModels for components, such as with [can-stache-define-element] you might want to be stricter about how properties are passed, to prevent mistakes.
+On the other hand, when creating ViewModels for components, such as with [can-stache-element] you might want to be stricter about how properties are passed, to prevent mistakes.
 
 ```js
 import { StacheDefineElement, type } from "can/everything";
@@ -173,7 +173,7 @@ increment();
 
 > Note: Having both `type: type.check(Number)` and `default: 0` in the same definition is redundant. Using `default: 0` will automatically set up type checking. It is shown above for clarity.
 
-See [can-stache-define-element] and [can-define-object] for more on these APIs.
+See [can-stache-element] and [can-observable-object] for more on these APIs.
 
 ## How it works
 
