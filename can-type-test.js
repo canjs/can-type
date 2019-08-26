@@ -83,8 +83,9 @@ var Integer = {};
 Integer[canSymbol.for("can.new")] = function(val) {
 	return parseInt(val);
 };
-Integer[canSymbol.for("can.isMember")] = function(val) {
-	return Number.isInteger(val);
+Integer[canSymbol.for("can.isMember")] = function(value) {
+	// “polyfill” for Number.isInteger because it’s not supported in IE11
+	return typeof value === "number" && isFinite(value) && Math.floor(value) === value;
 };
 canReflect.setName(Integer, "Integer");
 
