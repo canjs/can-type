@@ -12,11 +12,14 @@
     "email": "core@donejs.com",
     "url": "canjs.com"
   },
+  "browserslist": "ie 11",
   "scripts": {
+    "ci": "npm run test && node test-saucelabs.js",
     "preversion": "npm test",
     "postpublish": "git push --tags && git push",
     "testee": "testee test.html --browsers firefox",
     "test": "npm run jshint && npm run testee",
+    "http-server": "http-server -p 3000 --silent",
     "jshint": "jshint ./*.js --config",
     "release:patch": "npm version patch && npm publish",
     "release:minor": "npm version minor && npm publish",
@@ -34,10 +37,12 @@
   },
   "devDependencies": {
     "can-test-helpers": "^1.1.4",
+    "http-server": "^0.11.1",
     "jshint": "^2.9.1",
     "steal": "^2.1.6",
     "steal-qunit": "^2.0.0",
     "steal-tools": "^2.0.9",
+    "test-saucelabs": "0.0.6",
     "testee": "^0.9.1"
   },
   "license": "MIT"

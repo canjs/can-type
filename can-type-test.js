@@ -15,7 +15,9 @@ function strictEqual(assert, result, expected) {
 }
 
 function isNaN(assert, result) {
-	assert.ok(Number.isNaN(result), "Is NaN value");
+	// result !== result is used because Number.isNaN doesn’t exist in IE11
+	// result !== result works because NaN is the only value not equal to itself in JS
+	assert.ok(result !== result, "Is NaN value");
 }
 
 function ok(assert, reason) {
@@ -166,13 +168,17 @@ QUnit.test("type.Any works as an identity", function(assert) {
 });
 
 QUnit.test("type.late(fn) takes a function to define the type later", function(assert) {
-	var theType = type.late(() => type.convert(Number));
+	var theType = type.late(function() {
+		return type.convert(Number);
+	});
 	var result = canReflect.convert("45", theType);
 	assert.equal(result, 45, "Defined late but then converted");
 });
 
 dev.devOnlyTest("type.late(fn) where the underlying type value is a builtin becomes a strict type", function(assert) {
-	var typeType = type.late(() => Number);
+	var typeType = type.late(function() {
+		return Number;
+	});
 	var result = canReflect.convert(45, typeType);
 	assert.equal(result, 45, "works with numbers");
 
