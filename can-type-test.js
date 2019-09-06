@@ -7,11 +7,11 @@ var dev = require("can-test-helpers").dev;
 QUnit.module('can-type - Type methods');
 
 function equal(assert, result, expected) {
-	assert.equal(expected, result, "Result matches expected");
+	assert.equal(result, expected, "Result matches expected");
 }
 
 function strictEqual(assert, result, expected) {
-	assert.strictEqual(expected, result, "Result matches expected strictly");
+	assert.strictEqual(result, expected, "Result matches expected strictly");
 }
 
 function isNaN(assert, result) {
@@ -24,8 +24,16 @@ function ok(assert, reason) {
 	assert.ok(true, reason ||  "Expected to throw");
 }
 
+function notOk(assert, reason) {
+	assert.ok(false, reason || "Expected to throw");
+}
+
 function throwsBecauseOfWrongType(assert) {
 	ok(assert, "Throws when the wrong type is provided");
+}
+
+function shouldHaveThrownBecauseOfWrongType(assert) {
+	notOk(assert, "Should have thrown because the wrong type was provided");
 }
 
 var checkIsNaN = {
@@ -36,6 +44,14 @@ var checkDateMatchesNumber = {
 	check: function(assert, date, num) {
 		assert.strictEqual(date.getTime(), num, "Converted number to date");
 	}
+};
+
+var checkValue = function(comparison) {
+	return {
+		check: function(assert, result) {
+			assert.strictEqual(result, comparison, "value has been correctly converted");
+		}
+	};
 };
 
 var checkBoolean = function (comparison) {
@@ -128,6 +144,45 @@ var testCases = [
 		Type: Integer, value: 44.4,
 		convert: checkNumber(44),
 		maybeConvert: checkNumber(44)
+	},
+	{
+		Type: type.check(Number),
+		value: "44",
+		convert: checkNumber(44),
+		maybeConvert: checkNumber(44),
+		check: {
+			check: shouldHaveThrownBecauseOfWrongType,
+			throws: throwsBecauseOfWrongType
+		}
+	},
+	{
+		Type: type.maybe(Number),
+		value: "44",
+		convert: checkNumber(44),
+		check: throwsBecauseOfWrongType,
+		maybe: throwsBecauseOfWrongType
+	},
+	{
+		Type: type.maybe(Number),
+		value: null,
+		convert: checkValue(null),
+		check: checkValue(null)
+	},
+	{
+		Type: type.convert(Number),
+		value: "33",
+		check: throwsBecauseOfWrongType,
+		maybe: throwsBecauseOfWrongType,
+		convert: checkNumber(33),
+		maybeConvert: checkNumber(33)
+	},
+	{
+		Type: type.convert(Number),
+		value: null,
+		check: throwsBecauseOfWrongType,
+		maybe: throwsBecauseOfWrongType,
+		convert: checkNumber(0),
+		maybeConvert: checkValue(null)
 	}
 ];
 
@@ -234,4 +289,9 @@ QUnit.test("Should not be able to call new on a TypeObject", function(assert) {
 	} catch(err) {
 		assert.ok(err, "Got an error calling new");
 	}
+});
+
+QUnit.test("Type equality", function(assert) {
+	assert.strictEqual(type.convert(type.check(String)), type.convert(type.check(String)));
+	assert.strictEqual(type.maybe(String), type.maybe(String));
 });
