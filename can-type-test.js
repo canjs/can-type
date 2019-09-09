@@ -4,14 +4,17 @@ var type = require("../can-type");
 var QUnit = require("steal-qunit");
 var dev = require("can-test-helpers").dev;
 
+var newSymbol = canSymbol.for("can.new");
+var isMemberSymbol = canSymbol.for("can.isMember");
+
 QUnit.module('can-type - Type methods');
 
 function equal(assert, result, expected) {
-	assert.equal(expected, result, "Result matches expected");
+	assert.equal(result, expected, "Result matches expected");
 }
 
 function strictEqual(assert, result, expected) {
-	assert.strictEqual(expected, result, "Result matches expected strictly");
+	assert.strictEqual(result, expected, "Result matches expected strictly");
 }
 
 function isNaN(assert, result) {
@@ -24,8 +27,16 @@ function ok(assert, reason) {
 	assert.ok(true, reason ||  "Expected to throw");
 }
 
+function notOk(assert, reason) {
+	assert.ok(false, reason || "Expected to throw");
+}
+
 function throwsBecauseOfWrongType(assert) {
 	ok(assert, "Throws when the wrong type is provided");
+}
+
+function shouldHaveThrownBecauseOfWrongType(assert) {
+	notOk(assert, "Should have thrown because the wrong type was provided");
 }
 
 var checkIsNaN = {
@@ -36,6 +47,14 @@ var checkDateMatchesNumber = {
 	check: function(assert, date, num) {
 		assert.strictEqual(date.getTime(), num, "Converted number to date");
 	}
+};
+
+var checkValue = function(comparison) {
+	return {
+		check: function(assert, result) {
+			assert.strictEqual(result, comparison, "value has been correctly converted");
+		}
+	};
 };
 
 var checkBoolean = function (comparison) {
@@ -80,10 +99,10 @@ if(process.env.NODE_ENV !== 'production') {
 var dateAsNumber = new Date(1815, 11, 10).getTime();
 
 var Integer = {};
-Integer[canSymbol.for("can.new")] = function(val) {
+Integer[newSymbol] = function(val) {
 	return parseInt(val);
 };
-Integer[canSymbol.for("can.isMember")] = function(value) {
+Integer[isMemberSymbol] = function(value) {
 	// “polyfill” for Number.isInteger because it’s not supported in IE11
 	return typeof value === "number" && isFinite(value) && Math.floor(value) === value;
 };
@@ -128,6 +147,52 @@ var testCases = [
 		Type: Integer, value: 44.4,
 		convert: checkNumber(44),
 		maybeConvert: checkNumber(44)
+	},
+	{
+		Type: type.check(Number),
+		value: "44",
+		convert: checkNumber(44),
+		maybeConvert: checkNumber(44),
+		check: {
+			check: shouldHaveThrownBecauseOfWrongType,
+			throws: throwsBecauseOfWrongType
+		}
+	},
+	{
+		Type: type.maybe(Number),
+		value: "44",
+		convert: checkNumber(44),
+		check: throwsBecauseOfWrongType,
+		maybe: throwsBecauseOfWrongType
+	},
+	{
+		Type: type.maybe(Number),
+		value: null,
+		convert: checkValue(null),
+		check: checkValue(null)
+	},
+	{
+		Type: type.convert(Number),
+		value: "33",
+		check: throwsBecauseOfWrongType,
+		maybe: throwsBecauseOfWrongType,
+		convert: checkNumber(33),
+		maybeConvert: checkNumber(33)
+	},
+	{
+		Type: type.convert(Number),
+		value: null,
+		check: throwsBecauseOfWrongType,
+		maybe: throwsBecauseOfWrongType,
+		convert: checkNumber(0),
+		maybeConvert: checkValue(null)
+	},
+	{
+		Type: type.check(Integer), value: 44.4,
+		convert: checkNumber(44),
+		maybeConvert: checkNumber(44),
+		check: throwsBecauseOfWrongType,
+		maybe: throwsBecauseOfWrongType
 	}
 ];
 
@@ -234,4 +299,34 @@ QUnit.test("Should not be able to call new on a TypeObject", function(assert) {
 	} catch(err) {
 		assert.ok(err, "Got an error calling new");
 	}
+});
+
+QUnit.test("Type equality", function(assert) {
+	assert.strictEqual(type.convert(type.check(String)), type.convert(type.check(String)));
+	assert.strictEqual(type.maybe(String), type.maybe(String));
+});
+
+QUnit.test("TypeObjects do not need to throw themselves", function(assert) {
+	assert.expect(2);
+
+	function isABC(str) {
+		return "ABC".indexOf(str.toString()) !== -1;
+	}
+
+	var OnlyABC = {};
+	OnlyABC[newSymbol] = function() {
+		return "A";
+	};
+	OnlyABC[isMemberSymbol] = isABC;
+
+	var StrictABC = type.check(OnlyABC);
+	try {
+		canReflect.convert("D", StrictABC);
+	} catch(e) {
+		assert.ok(true, "Throw because isMember failed");
+	}
+
+	var NotStrictABC = type.convert(StrictABC);
+	var val = canReflect.convert("D", NotStrictABC);
+	assert.equal(val, "A", "converted");
 });
