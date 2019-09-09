@@ -195,3 +195,33 @@ If the value is not the correct type:
 
 - `type.maybe` and `type.check` will throw an error.
 - `type.convert` and `type.maybeConvert` will convert the value using [can-reflect.convert].
+
+## Applying multiple type functions
+
+The type functions [can-type/check], [can-type/convert], [can-type/maybe], and [can-type/maybeConvert] all return a [can-type.typeobject]. Since they also can take a TypeObject as an argument, this means you can apply multiple type functions.
+
+For example, using [can-type/convert] and [can-type/maybe] is equivalent to using [can-type/maybeConvert]:
+
+```js
+import { Reflect, type } from "can";
+
+const MaybeConvertString = type.convert(type.maybe(String));
+
+console.log(2, Reflect.convert(2, MaybeConvertString)); // "2"
+console.log(null, Reflect.convert(2, MaybeConvertString)); // null
+```
+@codepen
+
+Another example is taking a strict type and making it a converter type by wrapping with [can-type/convert]:
+
+```js
+import { Reflect, can } from "can";
+
+const StrictString = type.check(String);
+const NonStrictString = type.convert(StrictString);
+
+console.log("Converting: ", Reflect.convert(5, NonStrictString)); // "5"
+```
+@codepen
+
+This works because the type functions all keep a reference to the underlying type and simply toggle the *strictness* of the newly created TypeObject. When [can-symbol/symbols/new] is called the strictness is checked.
