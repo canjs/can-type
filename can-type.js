@@ -171,7 +171,7 @@ function getBase(Type, baseType, basePrimitiveName) {
 	}
 }
 
-function makeTypeFactory2(name, baseType, childDescriptors, primitiveMaybe, schemaValues) {
+function makeTypeFactory(name, baseType, childDescriptors, primitiveMaybe, schemaValues) {
 	var typeCache = new WeakMap();
 	return function(Type) {
 		if(typeCache.has(Type)) {
@@ -189,10 +189,10 @@ function makeTypeFactory2(name, baseType, childDescriptors, primitiveMaybe, sche
 	};
 }
 
-exports.check = makeTypeFactory2("check", baseType, strictDescriptor, "noMaybe", []);
-exports.convert = makeTypeFactory2("convert", baseType, unStrictDescriptor, "noMaybe", []);
-exports.maybe = makeTypeFactory2("maybe", baseMaybeType, strictMaybeDescriptor, "maybe", maybeValues);
-exports.maybeConvert = makeTypeFactory2("maybeConvert", baseMaybeType, unStrictMaybeDescriptor, "maybe", maybeValues);
+exports.check = makeTypeFactory("check", baseType, strictDescriptor, "noMaybe", []);
+exports.convert = makeTypeFactory("convert", baseType, unStrictDescriptor, "noMaybe", []);
+exports.maybe = makeTypeFactory("maybe", baseMaybeType, strictMaybeDescriptor, "maybe", maybeValues);
+exports.maybeConvert = makeTypeFactory("maybeConvert", baseMaybeType, unStrictMaybeDescriptor, "maybe", maybeValues);
 
 
 function isTypeObject(Type) {

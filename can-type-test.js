@@ -4,6 +4,9 @@ var type = require("../can-type");
 var QUnit = require("steal-qunit");
 var dev = require("can-test-helpers").dev;
 
+var newSymbol = canSymbol.for("can.new");
+var isMemberSymbol = canSymbol.for("can.isMember");
+
 QUnit.module('can-type - Type methods');
 
 function equal(assert, result, expected) {
@@ -96,10 +99,10 @@ if(process.env.NODE_ENV !== 'production') {
 var dateAsNumber = new Date(1815, 11, 10).getTime();
 
 var Integer = {};
-Integer[canSymbol.for("can.new")] = function(val) {
+Integer[newSymbol] = function(val) {
 	return parseInt(val);
 };
-Integer[canSymbol.for("can.isMember")] = function(value) {
+Integer[isMemberSymbol] = function(value) {
 	// “polyfill” for Number.isInteger because it’s not supported in IE11
 	return typeof value === "number" && isFinite(value) && Math.floor(value) === value;
 };
@@ -183,6 +186,13 @@ var testCases = [
 		maybe: throwsBecauseOfWrongType,
 		convert: checkNumber(0),
 		maybeConvert: checkValue(null)
+	},
+	{
+		Type: type.check(Integer), value: 44.4,
+		convert: checkNumber(44),
+		maybeConvert: checkNumber(44),
+		check: throwsBecauseOfWrongType,
+		maybe: throwsBecauseOfWrongType
 	}
 ];
 
@@ -294,4 +304,29 @@ QUnit.test("Should not be able to call new on a TypeObject", function(assert) {
 QUnit.test("Type equality", function(assert) {
 	assert.strictEqual(type.convert(type.check(String)), type.convert(type.check(String)));
 	assert.strictEqual(type.maybe(String), type.maybe(String));
+});
+
+QUnit.test("TypeObjects do not need to throw themselves", function(assert) {
+	assert.expect(2);
+
+	function isABC(str) {
+		return "ABC".indexOf(str.toString()) !== -1;
+	}
+
+	var OnlyABC = {};
+	OnlyABC[newSymbol] = function() {
+		return "A";
+	};
+	OnlyABC[isMemberSymbol] = isABC;
+
+	var StrictABC = type.check(OnlyABC);
+	try {
+		canReflect.convert("D", StrictABC);
+	} catch(e) {
+		assert.ok(true, "Throw because isMember failed");
+	}
+
+	var NotStrictABC = type.convert(StrictABC);
+	var val = canReflect.convert("D", NotStrictABC);
+	assert.equal(val, "A", "converted");
 });
