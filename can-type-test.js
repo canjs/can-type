@@ -306,7 +306,7 @@ QUnit.test("Type equality", function(assert) {
 	assert.strictEqual(type.maybe(String), type.maybe(String));
 });
 
-QUnit.test("TypeObjects do not need to throw themselves", function(assert) {
+dev.devOnlyTest("TypeObjects do not need to throw themselves", function(assert) {
 	assert.expect(2);
 
 	function isABC(str) {
