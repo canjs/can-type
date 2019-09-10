@@ -143,8 +143,12 @@ canReflect.each({
 			enumerable: true,
 			value: booleanNew
 		};
-		maybeDescriptor[getSchemaSymbol] = makeSchema([true, false, null, undefined]);
-		noMaybeDescriptor[getSchemaSymbol] = makeSchema([true, false]);
+		maybeDescriptor[getSchemaSymbol] = {
+			value: makeSchema([true, false, null, undefined])
+		};
+		noMaybeDescriptor[getSchemaSymbol] = {
+			value: makeSchema([true, false])
+		};
 	}
 
 	primitiveBaseTypes.set(Type, {

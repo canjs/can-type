@@ -330,3 +330,30 @@ QUnit.test("TypeObjects do not need to throw themselves", function(assert) {
 	var val = canReflect.convert("D", NotStrictABC);
 	assert.equal(val, "A", "converted");
 });
+
+QUnit.test("Maybe types should always return a schema with an or", function(assert) {
+	var schema = canReflect.getSchema(type.maybe(String));
+	assert.deepEqual(schema.values, [String, null, undefined]);
+
+	/*
+	schema = canReflect.getSchema(type.convert(type.maybe(String)));
+	assert.deepEqual(schema.values, [String, null, undefined]);
+	*/
+
+	schema = canReflect.getSchema(type.maybe(Boolean));
+	assert.deepEqual(schema.values, [true, false, null, undefined]);
+
+	schema = canReflect.getSchema(type.check(Boolean));
+	assert.deepEqual(schema.values, [true, false]);
+
+	schema = canReflect.getSchema(type.convert(type.maybe(Boolean)));
+	assert.deepEqual(schema.values, [true, false, null, undefined]);
+
+	schema = canReflect.getSchema(type.maybeConvert(Boolean));
+	assert.deepEqual(schema.values, [true, false, null, undefined]);
+
+	/*
+	schema = canReflect.getSchema(type.maybe(type.convert(Boolean)));
+	assert.deepEqual(schema.values, [true, false, null, undefined]);
+	*/
+});
