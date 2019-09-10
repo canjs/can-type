@@ -335,10 +335,8 @@ QUnit.test("Maybe types should always return a schema with an or", function(asse
 	var schema = canReflect.getSchema(type.maybe(String));
 	assert.deepEqual(schema.values, [String, null, undefined]);
 
-	/*
 	schema = canReflect.getSchema(type.convert(type.maybe(String)));
 	assert.deepEqual(schema.values, [String, null, undefined]);
-	*/
 
 	schema = canReflect.getSchema(type.maybe(Boolean));
 	assert.deepEqual(schema.values, [true, false, null, undefined]);
@@ -352,8 +350,6 @@ QUnit.test("Maybe types should always return a schema with an or", function(asse
 	schema = canReflect.getSchema(type.maybeConvert(Boolean));
 	assert.deepEqual(schema.values, [true, false, null, undefined]);
 
-	/*
 	schema = canReflect.getSchema(type.maybe(type.convert(Boolean)));
 	assert.deepEqual(schema.values, [true, false, null, undefined]);
-	*/
 });
