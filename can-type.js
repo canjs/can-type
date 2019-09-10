@@ -4,6 +4,8 @@ var canSymbol = require("can-symbol");
 var isMemberSymbol = canSymbol.for("can.isMember");
 var newSymbol = canSymbol.for("can.new");
 var getSchemaSymbol = canSymbol.for("can.getSchema");
+var baseTypeSymbol = canSymbol.for("can.baseType");
+var strictTypeOfSymbol = canSymbol.for("can.strictTypeOf");
 
 var type = exports;
 function makeSchema(values) {
@@ -15,44 +17,25 @@ function makeSchema(values) {
 	};
 }
 
-// Make an isMember function that prefers a isMemberSymbol on the Type.
-function makeIsMember(check) {
-	return function isMember(value) {
-		var Type = this.Type;
-		if(Type[isMemberSymbol]) {
-			return Type[isMemberSymbol](value);
-		}
-		if(check.call(this, value)) {
-			return true;
-		}
-		return false;
-	};
-}
-
-// Default isMember for non-maybe, non-primitives
-function isMember(value) {
-	return value instanceof this.Type;
-}
-
-// isMember for maybe non-primitives
-function maybeIsMember(value) {
-	return value == null || value instanceof this.Type;
-}
-
 // Default "can.new"
 function canNew(value) {
-	if(this.isStrict && !this[isMemberSymbol](value)) {
-		return check(this.Type, value);
+	if(this[isMemberSymbol](value)) {
+		return value;
 	}
 
-	return canReflect.convert(value, this.Type);
+	return canReflect.convert(value, this[baseTypeSymbol]);
+}
+
+function strictNew(value) {
+	var isMember = this[isMemberSymbol](value);
+	if(!isMember) {
+		return check(this[baseTypeSymbol], value);
+	}
+	return value;
 }
 
 // "can.new" for Booleans
 function booleanNew(value) {
-	if(this.isStrict && !this[isMemberSymbol](value)) {
-		return check(Boolean, value);
-	}
 	if (value === "false" || value=== "0") {
 		return false;
 	}
@@ -65,135 +48,135 @@ function check(Type, val) {
 	throw new Error('Type value ' + typeof val === "string" ? '"' + val + '"' : val + ' is not of type ' + canReflect.getName(Type) + '.'	);
 }
 
-/* Base converting proto */
-var baseType = {};
-canReflect.assignSymbols(baseType, {
-	isStrict: false,
-	"can.new": canNew,
-	"can.isMember": makeIsMember(isMember)
-});
-
-/* Descriptor for applying strictness */
-var strictDescriptor = {
-	isStrict: {
-		enumerable: true,
-		value: true
+function makeIsMember(Type) {
+	if(isMemberSymbol in Type) {
+		return Type[isMemberSymbol];
 	}
-};
-strictDescriptor[newSymbol] = {
-	enumerable: true,
-	value: canNew
-};
+	return function(value) {
+		return value instanceof Type;
+	};
+}
 
-/* Descriptor for applying nonstrictness */
-var unStrictDescriptor = {
-	isStrict: {
-		enumerable: true,
-		value: false
+function makeBaseType(Type) {
+	var typeObject = {};
+	typeObject[newSymbol] = canNew;
+	typeObject[isMemberSymbol] = makeIsMember(Type);
+	typeObject[baseTypeSymbol] = Type;
+	typeObject[getSchemaSymbol] = makeSchema([Type]);
+	Type[strictTypeOfSymbol] = typeObject[strictTypeOfSymbol] = typeObject;
+	return typeObject;
+}
+
+function makePrimitiveType(Type, typeString) {
+	var typeObject = makeBaseType(Type);
+	if(Type === Boolean) {
+		typeObject[newSymbol] = booleanNew;
+		typeObject[getSchemaSymbol] = makeSchema([true, false]);
 	}
-};
+	typeObject[isMemberSymbol] = function(value) {
+		return typeof value === typeString;
+	};
+	return typeObject;
+}
 
-/* Descriptor for maybe types */
-var maybeDescriptors = {};
-maybeDescriptors[isMemberSymbol] = {
-	enumerable: false,
-	value: makeIsMember(maybeIsMember)
-};
-/* Base maybe type */
-var baseMaybeType = Object.create(baseType, maybeDescriptors);
+function getBaseType(Type) {
+	if(strictTypeOfSymbol in Type) {
+		return Type[strictTypeOfSymbol];
+	}
+	return makeBaseType(Type);
+}
 
-var strictMaybeDescriptor = {
-	isStrict: strictDescriptor.isStrict
-};
-strictMaybeDescriptor[isMemberSymbol] = maybeDescriptors[isMemberSymbol];
-strictMaybeDescriptor[newSymbol] = {
-	enumerable: true,
-	value: canNew
-};
+function makeMaybe(Type) {
+	var isMember = Type[isMemberSymbol];
+	return function(value) {
+		return value == null || isMember.call(this, value);
+	};
+}
 
-var unStrictMaybeDescriptor = {
-	isStrict: unStrictDescriptor.isStrict
-};
-unStrictMaybeDescriptor[isMemberSymbol] = maybeDescriptors[isMemberSymbol];
+function makeMaybeSchema(baseType) {
+	var baseSchema = canReflect.getSchema(baseType);
+	var allValues = baseSchema.values.concat(maybeValues);
+	return makeSchema(allValues);
+}
 
-var primitiveBaseTypes = new Map();
+function inheritFrom(o, Type, property) {
+	if(property in Type) {
+		o[property] = Type[property];
+	}
+}
+
+function wrapName(wrapper, Type) {
+	var baseName = canReflect.getName(Type);
+	return "type." + wrapper + "(" + baseName + ")";
+}
+
 canReflect.each({
 	"boolean": Boolean,
 	"number": Number,
 	"string": String
 }, function(Type, typeString) {
-	var noMaybeDescriptor = {};
-	var maybeDescriptor = {};
-	noMaybeDescriptor[isMemberSymbol] = {
-		enumerable: true,
-		value: 	function isMember(val) {
-			return typeof val === typeString;
-		}
-	};
-
-	maybeDescriptor[isMemberSymbol] = {
-		enumerable: true,
-		value: 	function isMaybeMember(val) {
-			return val == null || typeof val === typeString;
-		}
-	};
-
-	if(Type === Boolean) {
-		noMaybeDescriptor[newSymbol] = maybeDescriptor[newSymbol] = {
-			enumerable: true,
-			value: booleanNew
-		};
-		maybeDescriptor[getSchemaSymbol] = makeSchema([true, false, null, undefined]);
-		noMaybeDescriptor[getSchemaSymbol] = makeSchema([true, false]);
-	}
-
-	primitiveBaseTypes.set(Type, {
-		noMaybe: Object.create(baseType, noMaybeDescriptor),
-		maybe: Object.create(baseMaybeType, maybeDescriptor)
-	});
+	makePrimitiveType(Type, typeString);
 });
 
-function addType(typeObject, Type) {
-	if(!('Type' in typeObject)) {
-		Object.defineProperty(typeObject, 'Type', {
-			value: Type
-		});
-	}
-}
-
-function getBase(Type, baseType, basePrimitiveName) {
-	if(primitiveBaseTypes.has(Type)) {
-		return primitiveBaseTypes.get(Type)[basePrimitiveName];
-	} else if(isTypeObject(Type)) {
-		return Type;
-	} else {
-		return baseType;
-	}
-}
-
-function makeTypeFactory(name, baseType, childDescriptors, primitiveMaybe, schemaValues) {
-	var typeCache = new WeakMap();
+function makeCache(fn) {
+	var cache = new WeakMap();
 	return function(Type) {
-		if(typeCache.has(Type)) {
-			return typeCache.get(Type);
+		if(cache.has(Type)) {
+			return cache.get(Type);
 		}
-
-		var base = getBase(Type, baseType, primitiveMaybe);
-		var typeObject = Object.create(base, childDescriptors);
-
-		addType(typeObject, Type);
-		typeObject[getSchemaSymbol] = makeSchema([Type].concat(schemaValues));
-		canReflect.setName(typeObject, "type." + name + "(" + canReflect.getName(Type) + ")");
-		typeCache.set(Type, typeObject);
+		var typeObject = fn.call(this, Type);
+		cache.set(Type, typeObject);
 		return typeObject;
 	};
 }
 
-exports.check = makeTypeFactory("check", baseType, strictDescriptor, "noMaybe", []);
-exports.convert = makeTypeFactory("convert", baseType, unStrictDescriptor, "noMaybe", []);
-exports.maybe = makeTypeFactory("maybe", baseMaybeType, strictMaybeDescriptor, "maybe", maybeValues);
-exports.maybeConvert = makeTypeFactory("maybeConvert", baseMaybeType, unStrictMaybeDescriptor, "maybe", maybeValues);
+exports.check = makeCache(function(Type) {
+	var o = Object.create(getBaseType(Type));
+	o[newSymbol] = strictNew;
+	inheritFrom(o, Type, isMemberSymbol);
+	inheritFrom(o, Type, getSchemaSymbol);
+	canReflect.setName(o, wrapName("check", Type));
+	return o;
+});
 
+exports.convert = makeCache(function(Type) {
+	var o = Object.create(getBaseType(Type));
+	inheritFrom(o, Type, isMemberSymbol);
+	inheritFrom(o, Type, getSchemaSymbol);
+	canReflect.setName(o, wrapName("convert", Type));
+	return o;
+});
+
+exports.maybe = makeCache(function(Type) {
+	var baseType = getBaseType(Type);
+	var desc = {};
+	desc[newSymbol] = {
+		value: strictNew
+	};
+	desc[isMemberSymbol] = {
+		value: makeMaybe(baseType)
+	};
+	desc[getSchemaSymbol] = {
+		value: makeMaybeSchema(baseType)
+	};
+	var o = Object.create(baseType, desc);
+	canReflect.setName(o, wrapName("maybe", Type));
+	return o;
+});
+
+exports.maybeConvert = makeCache(function(Type) {
+	var baseType = getBaseType(Type);
+	var desc = {};
+	desc[isMemberSymbol] = {
+		value: makeMaybe(baseType)
+	};
+	desc[getSchemaSymbol] = {
+		value: makeMaybeSchema(baseType)
+	};
+	var o = Object.create(baseType, desc);
+	canReflect.setName(o, wrapName("maybeConvert", Type));
+	return o;
+});
 
 function isTypeObject(Type) {
 	if(canReflect.isPrimitive(Type)) {
