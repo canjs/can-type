@@ -258,3 +258,4 @@ exports.late = late;
 exports.isTypeObject = isTypeObject;
 exports.normalize = normalize;
 exports.all = all;
+exports.convertAll = all.bind(null, exports.convert);

@@ -386,7 +386,7 @@ QUnit.test("type.convertAll is a convenience for type.all(type.convert, Type)", 
 	Person[newSymbol] = function(values) {
 		return canReflect.assignMap(new Person(), values);
 	};
-	Person[isMemberSymbol] = function(value) { return value instanceof Person };
+	Person[isMemberSymbol] = function(value) { return value instanceof Person; };
 	Person[getSchemaSymbol] = function() {
 		return {
 			type: "map",
@@ -399,7 +399,7 @@ QUnit.test("type.convertAll is a convenience for type.all(type.convert, Type)", 
 		};
 	};
 
-	var ConvertingPerson = type.all(type.convert, Person);
+	var ConvertingPerson = type.convertAll(Person);
 
 	var person = canReflect.new(ConvertingPerson, { first: "Wilbur", last: "Phillips", age: "8" });
 	assert.equal(typeof person.age, "number", "it is a number");
