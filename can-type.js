@@ -219,6 +219,34 @@ var Any = canReflect.assignSymbols({}, {
 	"can.isMember": function() { return true; }
 });
 
+function all(typeFn, Type) {
+	var typeObject = typeFn(Type);
+	typeObject[getSchemaSymbol] = function() {
+		var parentSchema = canReflect.getSchema(Type);
+		var schema = canReflect.assignMap({}, parentSchema);
+		schema.keys = {};
+		canReflect.eachKey(parentSchema.keys, function(value, key) {
+			schema.keys[key] = typeFn(value);
+		});
+		return schema;
+	};
+
+	function Constructor(values) {
+		var schema = canReflect.getSchema(this);
+		var keys = schema.keys;
+		var convertedValues = {};
+		canReflect.eachKey(values || {}, function(value, key) {
+			convertedValues[key] = canReflect.convert(value, keys[key]);
+		});
+		return canReflect.new(Type, convertedValues);
+	}
+
+	canReflect.setName(Constructor, "Converted<" + canReflect.getName(Type) + ">");
+	Constructor.prototype = typeObject;
+
+	return Constructor;
+}
+
 // type checking should not throw in production
 if(process.env.NODE_ENV === 'production') {
 	exports.check = exports.convert;
@@ -229,3 +257,5 @@ exports.Any = Any;
 exports.late = late;
 exports.isTypeObject = isTypeObject;
 exports.normalize = normalize;
+exports.all = all;
+exports.convertAll = all.bind(null, exports.convert);

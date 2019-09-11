@@ -6,6 +6,7 @@ var dev = require("can-test-helpers").dev;
 
 var newSymbol = canSymbol.for("can.new");
 var isMemberSymbol = canSymbol.for("can.isMember");
+var getSchemaSymbol = canSymbol.for("can.getSchema");
 
 QUnit.module('can-type - Type methods');
 
@@ -352,4 +353,57 @@ QUnit.test("Maybe types should always return a schema with an or", function(asse
 
 	schema = canReflect.getSchema(type.maybe(type.convert(Boolean)));
 	assert.deepEqual(schema.values, [true, false, null, undefined]);
+});
+
+QUnit.test("type.all converts objects", function(assert) {
+	var Person = function(values) {
+		canReflect.assignMap(this, values);
+	};
+	Person[newSymbol] = function(values) { return new Person(values); };
+	Person[getSchemaSymbol] = function() {
+		return {
+			type: "map",
+			identity: [],
+			keys: {
+				first: type.check(String),
+				last: type.check(String),
+				age: type.check(Number)
+			}
+		};
+	};
+
+	var ConvertingPerson = type.all(type.convert, Person);
+
+	var person = canReflect.new(ConvertingPerson, { first: "Wilbur", last: "Phillips", age: "8" });
+	assert.equal(typeof person.age, "number", "it is a number");
+	assert.equal(person.first, "Wilbur");
+	assert.equal(person.last, "Phillips");
+	assert.equal(person.age, 8);
+});
+
+QUnit.test("type.convertAll is a convenience for type.all(type.convert, Type)", function(assert) {
+	var Person = function() {};
+	Person[newSymbol] = function(values) {
+		return canReflect.assignMap(new Person(), values);
+	};
+	Person[isMemberSymbol] = function(value) { return value instanceof Person; };
+	Person[getSchemaSymbol] = function() {
+		return {
+			type: "map",
+			identity: [],
+			keys: {
+				first: type.check(String),
+				last: type.check(String),
+				age: type.check(Number)
+			}
+		};
+	};
+
+	var ConvertingPerson = type.convertAll(Person);
+
+	var person = canReflect.new(ConvertingPerson, { first: "Wilbur", last: "Phillips", age: "8" });
+	assert.equal(typeof person.age, "number", "it is a number");
+	assert.equal(person.first, "Wilbur");
+	assert.equal(person.last, "Phillips");
+	assert.equal(person.age, 8);
 });
