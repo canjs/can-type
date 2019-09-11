@@ -4,7 +4,7 @@
 
 @signature `type.convertAll(Type)`
 
-  Given a `Type`, creates a [can-type.typeobject] where each property on the Type is converted, rather than being strictly checked.
+  Create a new type that inherits the same properties of `Type`, but where each property on the `Type` is converted, rather than being strictly checked.
 
   ```js
   import { ObservableObject, Reflect, type } from "can/everything";

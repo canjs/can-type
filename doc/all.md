@@ -4,7 +4,7 @@
 
 @signature `type.all(converter, Type)`
 
-  Given a converter function, which should be one of [can-type/check], [can-type/maybe], [can-type/convert], or [can-type/maybeConvert], create a new type that inherits the same properties of `Type`, but runs the converter function on them and returns a [can-type.typeobject].
+  Create a new type that inherits the same properties of `Type`, but with each property run through the converter function. The converter function should be one of [can-type/check], [can-type/maybe], [can-type/convert], or [can-type/maybeConvert].
 
   ```js
   import { ObservableObject, Reflect, type } from "can/everything";
