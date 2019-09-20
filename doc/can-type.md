@@ -99,7 +99,7 @@ can-type is useful for creating typed properties in [can-observable-object]. You
 import { ObservableObject, type } from "can";
 
 class Person extends ObservableObject {
-  static define = {
+  static props = {
     first: type.check(String), // type checking is the default behavior
     last: type.maybe(String),
 
@@ -129,7 +129,7 @@ On the other hand, when creating ViewModels for components, such as with [can-st
 import { StacheElement, type } from "can";
 
 class Progress extends StacheElement {
-  static define = {
+  static props = {
     value: {
       type: type.check(Number),
       default: 0
