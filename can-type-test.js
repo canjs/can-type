@@ -4,14 +4,18 @@ var type = require("../can-type");
 var QUnit = require("steal-qunit");
 var dev = require("can-test-helpers").dev;
 
+var newSymbol = canSymbol.for("can.new");
+var isMemberSymbol = canSymbol.for("can.isMember");
+var getSchemaSymbol = canSymbol.for("can.getSchema");
+
 QUnit.module('can-type - Type methods');
 
 function equal(assert, result, expected) {
-	assert.equal(expected, result, "Result matches expected");
+	assert.equal(result, expected, "Result matches expected");
 }
 
 function strictEqual(assert, result, expected) {
-	assert.strictEqual(expected, result, "Result matches expected strictly");
+	assert.strictEqual(result, expected, "Result matches expected strictly");
 }
 
 function isNaN(assert, result) {
@@ -24,8 +28,16 @@ function ok(assert, reason) {
 	assert.ok(true, reason ||  "Expected to throw");
 }
 
+function notOk(assert, reason) {
+	assert.ok(false, reason || "Expected to throw");
+}
+
 function throwsBecauseOfWrongType(assert) {
 	ok(assert, "Throws when the wrong type is provided");
+}
+
+function shouldHaveThrownBecauseOfWrongType(assert) {
+	notOk(assert, "Should have thrown because the wrong type was provided");
 }
 
 var checkIsNaN = {
@@ -38,10 +50,26 @@ var checkDateMatchesNumber = {
 	}
 };
 
+var checkValue = function(comparison) {
+	return {
+		check: function(assert, result) {
+			assert.strictEqual(result, comparison, "value has been correctly converted");
+		}
+	};
+};
+
 var checkBoolean = function (comparison) {
 	return {
 		check: function (assert, result) {
 			assert.strictEqual(result, comparison, "Boolean has been correctly converted");
+		}
+	};
+};
+
+var checkNumber = function(comparison) {
+	return {
+		check: function(assert, result) {
+			assert.strictEqual(result, comparison, "Number has been correctly converted");
 		}
 	};
 };
@@ -70,6 +98,16 @@ if(process.env.NODE_ENV !== 'production') {
 }
 
 var dateAsNumber = new Date(1815, 11, 10).getTime();
+
+var Integer = {};
+Integer[newSymbol] = function(val) {
+	return parseInt(val);
+};
+Integer[isMemberSymbol] = function(value) {
+	// “polyfill” for Number.isInteger because it’s not supported in IE11
+	return typeof value === "number" && isFinite(value) && Math.floor(value) === value;
+};
+canReflect.setName(Integer, "Integer");
 
 var testCases = [
 	{ Type: Boolean, value: true },
@@ -102,6 +140,60 @@ var testCases = [
 		Type: Number, value: "foo",
 		convert: checkIsNaN,
 		maybeConvert: checkIsNaN
+	},
+	{
+		Type: Integer, value: 44
+	},
+	{
+		Type: Integer, value: 44.4,
+		convert: checkNumber(44),
+		maybeConvert: checkNumber(44)
+	},
+	{
+		Type: type.check(Number),
+		value: "44",
+		convert: checkNumber(44),
+		maybeConvert: checkNumber(44),
+		check: {
+			check: shouldHaveThrownBecauseOfWrongType,
+			throws: throwsBecauseOfWrongType
+		}
+	},
+	{
+		Type: type.maybe(Number),
+		value: "44",
+		convert: checkNumber(44),
+		check: throwsBecauseOfWrongType,
+		maybe: throwsBecauseOfWrongType
+	},
+	{
+		Type: type.maybe(Number),
+		value: null,
+		convert: checkValue(null),
+		check: checkValue(null)
+	},
+	{
+		Type: type.convert(Number),
+		value: "33",
+		check: throwsBecauseOfWrongType,
+		maybe: throwsBecauseOfWrongType,
+		convert: checkNumber(33),
+		maybeConvert: checkNumber(33)
+	},
+	{
+		Type: type.convert(Number),
+		value: null,
+		check: throwsBecauseOfWrongType,
+		maybe: throwsBecauseOfWrongType,
+		convert: checkNumber(0),
+		maybeConvert: checkValue(null)
+	},
+	{
+		Type: type.check(Integer), value: 44.4,
+		convert: checkNumber(44),
+		maybeConvert: checkNumber(44),
+		check: throwsBecauseOfWrongType,
+		maybe: throwsBecauseOfWrongType
 	}
 ];
 
@@ -208,4 +300,110 @@ QUnit.test("Should not be able to call new on a TypeObject", function(assert) {
 	} catch(err) {
 		assert.ok(err, "Got an error calling new");
 	}
+});
+
+QUnit.test("Type equality", function(assert) {
+	assert.strictEqual(type.convert(type.check(String)), type.convert(type.check(String)));
+	assert.strictEqual(type.maybe(String), type.maybe(String));
+});
+
+dev.devOnlyTest("TypeObjects do not need to throw themselves", function(assert) {
+	assert.expect(2);
+
+	function isABC(str) {
+		return "ABC".indexOf(str.toString()) !== -1;
+	}
+
+	var OnlyABC = {};
+	OnlyABC[newSymbol] = function() {
+		return "A";
+	};
+	OnlyABC[isMemberSymbol] = isABC;
+
+	var StrictABC = type.check(OnlyABC);
+	try {
+		canReflect.convert("D", StrictABC);
+	} catch(e) {
+		assert.ok(true, "Throw because isMember failed");
+	}
+
+	var NotStrictABC = type.convert(StrictABC);
+	var val = canReflect.convert("D", NotStrictABC);
+	assert.equal(val, "A", "converted");
+});
+
+QUnit.test("Maybe types should always return a schema with an or", function(assert) {
+	var schema = canReflect.getSchema(type.maybe(String));
+	assert.deepEqual(schema.values, [String, null, undefined]);
+
+	schema = canReflect.getSchema(type.convert(type.maybe(String)));
+	assert.deepEqual(schema.values, [String, null, undefined]);
+
+	schema = canReflect.getSchema(type.maybe(Boolean));
+	assert.deepEqual(schema.values, [true, false, null, undefined]);
+
+	schema = canReflect.getSchema(type.check(Boolean));
+	assert.deepEqual(schema.values, [true, false]);
+
+	schema = canReflect.getSchema(type.convert(type.maybe(Boolean)));
+	assert.deepEqual(schema.values, [true, false, null, undefined]);
+
+	schema = canReflect.getSchema(type.maybeConvert(Boolean));
+	assert.deepEqual(schema.values, [true, false, null, undefined]);
+
+	schema = canReflect.getSchema(type.maybe(type.convert(Boolean)));
+	assert.deepEqual(schema.values, [true, false, null, undefined]);
+});
+
+QUnit.test("type.all converts objects", function(assert) {
+	var Person = function(values) {
+		canReflect.assignMap(this, values);
+	};
+	Person[newSymbol] = function(values) { return new Person(values); };
+	Person[getSchemaSymbol] = function() {
+		return {
+			type: "map",
+			identity: [],
+			keys: {
+				first: type.check(String),
+				last: type.check(String),
+				age: type.check(Number)
+			}
+		};
+	};
+
+	var ConvertingPerson = type.all(type.convert, Person);
+
+	var person = canReflect.new(ConvertingPerson, { first: "Wilbur", last: "Phillips", age: "8" });
+	assert.equal(typeof person.age, "number", "it is a number");
+	assert.equal(person.first, "Wilbur");
+	assert.equal(person.last, "Phillips");
+	assert.equal(person.age, 8);
+});
+
+QUnit.test("type.convertAll is a convenience for type.all(type.convert, Type)", function(assert) {
+	var Person = function() {};
+	Person[newSymbol] = function(values) {
+		return canReflect.assignMap(new Person(), values);
+	};
+	Person[isMemberSymbol] = function(value) { return value instanceof Person; };
+	Person[getSchemaSymbol] = function() {
+		return {
+			type: "map",
+			identity: [],
+			keys: {
+				first: type.check(String),
+				last: type.check(String),
+				age: type.check(Number)
+			}
+		};
+	};
+
+	var ConvertingPerson = type.convertAll(Person);
+
+	var person = canReflect.new(ConvertingPerson, { first: "Wilbur", last: "Phillips", age: "8" });
+	assert.equal(typeof person.age, "number", "it is a number");
+	assert.equal(person.first, "Wilbur");
+	assert.equal(person.last, "Phillips");
+	assert.equal(person.age, 8);
 });
