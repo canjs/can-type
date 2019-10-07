@@ -407,3 +407,25 @@ QUnit.test("type.convertAll is a convenience for type.all(type.convert, Type)", 
 	assert.equal(person.last, "Phillips");
 	assert.equal(person.age, 8);
 });
+
+var testCases = [
+	{Type: String, value: '3', ExpectedType: Number},
+	{Type: Number, value: 3, ExpectedType: String},
+	{Type: Boolean, value: false, ExpectedType: Number},
+	{Type: String, value: '', ExpectedType: Boolean}
+];
+
+testCases.forEach(function(testCase) {
+	var typeName = canReflect.getName(testCase.Type);
+	var expectedTypeName = canReflect.getName(testCase.ExpectedType);
+	QUnit.test('Include the type ' + typeName + ' of the value', function(assert) {
+		var strictType = type.check(testCase.ExpectedType);
+	
+		try {
+			canReflect.convert(testCase.value, strictType);
+		} catch (error) {
+			assert.equal(error.message, testCase.value + ' (' + typeName + ') is not of type ' + expectedTypeName + '.');
+		}
+	});
+});
+

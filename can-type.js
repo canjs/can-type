@@ -8,6 +8,16 @@ var baseTypeSymbol = canSymbol.for("can.baseType");
 var strictTypeOfSymbol = canSymbol.for("can.strictTypeOf");
 
 var type = exports;
+
+// Helper function to capitalize the result of typeof
+// see `check` function
+var capitalizeTypeName = function(type) {
+	if (typeof type !== 'string') {
+		throw new Error('Type must be string');
+	}
+	return type.charAt(0).toUpperCase() + type.slice(1);
+};
+
 function makeSchema(values) {
 	return function(){
 		return {
@@ -45,7 +55,8 @@ function booleanNew(value) {
 var maybeValues = Object.freeze([null, undefined]);
 
 function check(Type, val) {
-	throw new Error('Type value ' + typeof val === "string" ? '"' + val + '"' : val + ' is not of type ' + canReflect.getName(Type) + '.'	);
+	var valueType = typeof val;
+	throw new Error('Type value ' + typeof val === "string" ? '"' + val + '"' : val + ' (' + capitalizeTypeName(valueType) + ') is not of type ' + canReflect.getName(Type) + '.'	);
 }
 
 function makeIsMember(Type) {
