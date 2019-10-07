@@ -3,6 +3,7 @@ var canReflect = require("can-reflect");
 var type = require("../can-type");
 var QUnit = require("steal-qunit");
 var dev = require("can-test-helpers").dev;
+var helpers = require("./helpers");
 
 var newSymbol = canSymbol.for("can.new");
 var isMemberSymbol = canSymbol.for("can.isMember");
@@ -409,15 +410,15 @@ QUnit.test("type.convertAll is a convenience for type.all(type.convert, Type)", 
 });
 
 var testCases = [
-	{Type: String, value: '3', ExpectedType: Number},
-	{Type: Number, value: 3, ExpectedType: String},
-	{Type: Boolean, value: false, ExpectedType: Number},
-	{Type: String, value: '', ExpectedType: Boolean}
+	{expectedTypeName: 'Number', value: '3', ExpectedType: Number},
+	{expectedTypeName: 'String', value: 3, ExpectedType: String},
+	{expectedTypeName: 'Number', value: false, ExpectedType: Number},
+	{expectedTypeName: 'Boolean', value: '', ExpectedType: Boolean}
 ];
 
 testCases.forEach(function(testCase) {
-	var typeName = canReflect.getName(testCase.Type);
-	var expectedTypeName = canReflect.getName(testCase.ExpectedType);
+	var typeName = helpers.capitalizeTypeName(typeof testCase.value);
+	var expectedTypeName = testCase.expectedTypeName;
 	QUnit.test('Include the type ' + typeName + ' of the value', function(assert) {
 		var strictType = type.check(testCase.ExpectedType);
 	

@@ -1,5 +1,6 @@
 var canReflect = require("can-reflect");
 var canSymbol = require("can-symbol");
+var helpers = require("./helpers");
 
 var isMemberSymbol = canSymbol.for("can.isMember");
 var newSymbol = canSymbol.for("can.new");
@@ -9,14 +10,7 @@ var strictTypeOfSymbol = canSymbol.for("can.strictTypeOf");
 
 var type = exports;
 
-// Helper function to capitalize the result of typeof
-// see `check` function
-var capitalizeTypeName = function(type) {
-	if (typeof type !== 'string') {
-		throw new Error('Type must be string');
-	}
-	return type.charAt(0).toUpperCase() + type.slice(1);
-};
+var capitalizeTypeName = helpers.capitalizeTypeName;
 
 function makeSchema(values) {
 	return function(){
