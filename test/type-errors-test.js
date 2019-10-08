@@ -1,7 +1,7 @@
 var canReflect = require("can-reflect");
-var type = require("./can-type");
+var type = require("../can-type");
 var QUnit = require("steal-qunit");
-var helpers = require("./helpers");
+var helpers = require("../helpers");
 
 QUnit.module('can-type - Type errors');
 

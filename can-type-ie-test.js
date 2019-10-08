@@ -1,1 +1,1 @@
-require('./can-type-test');
+require('./test/type-methods');
