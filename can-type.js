@@ -1,5 +1,6 @@
 var canReflect = require("can-reflect");
 var canSymbol = require("can-symbol");
+var namespace = require("can-namespace");
 
 var isMemberSymbol = canSymbol.for("can.isMember");
 var newSymbol = canSymbol.for("can.new");
@@ -259,3 +260,4 @@ exports.isTypeObject = isTypeObject;
 exports.normalize = normalize;
 exports.all = all;
 exports.convertAll = all.bind(null, exports.convert);
+namespace.type = exports;
