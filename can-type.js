@@ -1,6 +1,5 @@
 var canReflect = require("can-reflect");
 var canSymbol = require("can-symbol");
-var helpers = require("./helpers");
 
 var isMemberSymbol = canSymbol.for("can.isMember");
 var newSymbol = canSymbol.for("can.new");
@@ -9,8 +8,6 @@ var baseTypeSymbol = canSymbol.for("can.baseType");
 var strictTypeOfSymbol = canSymbol.for("can.strictTypeOf");
 
 var type = exports;
-
-var capitalizeTypeName = helpers.capitalizeTypeName;
 
 function makeSchema(values) {
 	return function(){
@@ -50,7 +47,8 @@ var maybeValues = Object.freeze([null, undefined]);
 
 function check(Type, val) {
 	var valueType = typeof val;
-	throw new Error('Type value ' + typeof val === "string" ? '"' + val + '"' : val + ' (' + capitalizeTypeName(valueType) + ') is not of type ' + canReflect.getName(Type) + '.'	);
+	valueType = valueType.charAt(0).toUpperCase() + valueType.slice(1);
+	throw new Error('Type value ' + typeof val === "string" ? '"' + val + '"' : val + ' (' + valueType + ') is not of type ' + canReflect.getName(Type) + '.'	);
 }
 
 function makeIsMember(Type) {
