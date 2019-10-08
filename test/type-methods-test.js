@@ -194,6 +194,58 @@ var testCases = [
 		maybeConvert: checkNumber(44),
 		check: throwsBecauseOfWrongType,
 		maybe: throwsBecauseOfWrongType
+	},
+	{
+		Type: type.Number, value: 44,
+		check: checkNumber(44),
+		maybeConvert: checkNumber(44)
+	},
+	{
+		Type: type.Boolean, value: false,
+		check: checkBoolean(false),
+		maybeConvert: checkBoolean(false)
+	},
+	{
+		Type: type.String, value: 44,
+		check: throwsBecauseOfWrongType,
+	},
+	{
+		Type: type.Date, value: dateAsNumber,
+		convert: checkDateMatchesNumber,
+		maybeConvert: checkDateMatchesNumber
+	},
+	{
+		Type: type.Integer, value: 44.4,
+		check: throwsBecauseOfWrongType,
+		convert: checkNumber(44),
+		maybeConvert: checkNumber(44)
+	},
+	{
+		Type: type.ToNumber, value: "44",
+		check: throwsBecauseOfWrongType,
+		convert: checkNumber(44)
+	},
+	{
+		Type: type.ToBoolean, value: "bar",
+		check: throwsBecauseOfWrongType,
+		convert: checkBoolean(true),
+		maybeConvert: checkBoolean(true)
+	},
+	{
+		Type: type.ToString, value: 44,
+		check: throwsBecauseOfWrongType,
+		convert: checkValue("44")
+	},
+	{
+		Type: type.ToDate, value: dateAsNumber,
+		convert: checkDateMatchesNumber,
+		maybeConvert: checkDateMatchesNumber
+	},
+	{
+		Type: type.ToInteger, value: 44.4,
+		check: throwsBecauseOfWrongType,
+		convert: checkNumber(44),
+		maybeConvert: checkNumber(44)
 	}
 ];
 

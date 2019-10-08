@@ -251,6 +251,15 @@ function all(typeFn, Type) {
 	return Constructor;
 }
 
+var Integer = {};
+Integer[newSymbol] = function(value) {
+	return parseInt(value);
+};
+Integer[isMemberSymbol] = function(value) {
+	// “polyfill” for Number.isInteger because it’s not supported in IE11
+	return typeof value === "number" && isFinite(value) && Math.floor(value) === value;
+};
+
 // type checking should not throw in production
 if(process.env.NODE_ENV === 'production') {
 	exports.check = exports.convert;
@@ -263,4 +272,19 @@ exports.isTypeObject = isTypeObject;
 exports.normalize = normalize;
 exports.all = all;
 exports.convertAll = all.bind(null, exports.convert);
+
+canReflect.each({
+	"Boolean": Boolean,
+	"Number": Number,
+	"String": String,
+	"Date": Date,
+	"Integer": Integer
+}, function(Type, typeString) {
+	var typeObject = exports[typeString] = Object.create(type.check(Type));
+	canReflect.setName(typeObject, "type." + typeString);
+
+	typeObject = exports["To" + typeString] = Object.create(type.convert(Type));
+	canReflect.setName(typeObject, "type.To" + typeString);
+});
+
 namespace.type = exports;
