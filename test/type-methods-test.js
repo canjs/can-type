@@ -411,7 +411,7 @@ QUnit.test("type.convertAll is a convenience for type.all(type.convert, Type)", 
 QUnit.test("Subtypes convert correctly", function(assert) {
 	var Animal = function(){};
 	var Frog = function() {
-		Reflect.construct(Animal, arguments, this.constructor);
+		Animal.call(this, arguments);
 	};
 	Object.setPrototypeOf(Frog.prototype, Animal.prototype);
 	Object.setPrototypeOf(Frog, Animal);
