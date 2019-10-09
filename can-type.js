@@ -1,5 +1,6 @@
 var canReflect = require("can-reflect");
 var canSymbol = require("can-symbol");
+var canString = require("can-string");
 
 var isMemberSymbol = canSymbol.for("can.isMember");
 var newSymbol = canSymbol.for("can.new");
@@ -46,8 +47,7 @@ function booleanNew(value) {
 var maybeValues = Object.freeze([null, undefined]);
 
 function check(Type, val) {
-	var valueType = typeof val;
-	valueType = valueType.charAt(0).toUpperCase() + valueType.slice(1);
+	var valueType = canString.capitalize(typeof val);
 	throw new Error('Type value ' + typeof val === "string" ? '"' + val + '"' : val + ' (' + valueType + ') is not of type ' + canReflect.getName(Type) + '.'	);
 }
 
