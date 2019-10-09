@@ -407,3 +407,18 @@ QUnit.test("type.convertAll is a convenience for type.all(type.convert, Type)", 
 	assert.equal(person.last, "Phillips");
 	assert.equal(person.age, 8);
 });
+
+QUnit.test("Subtypes convert correctly", function(assert) {
+	var Animal = function(){};
+	var Frog = function() {
+		Reflect.construct(Animal, arguments, this.constructor);
+	};
+	Object.setPrototypeOf(Frog.prototype, Animal.prototype);
+	Object.setPrototypeOf(Frog, Animal);
+
+	type.convert(Animal);
+	var ConvertingFrog = type.convert(Frog);
+
+	var frog = canReflect.convert({}, ConvertingFrog);
+	assert.ok(frog instanceof Frog, "a frog is a frog");
+});

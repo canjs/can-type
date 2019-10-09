@@ -84,7 +84,11 @@ function makePrimitiveType(Type, typeString) {
 }
 
 function getBaseType(Type) {
-	if(strictTypeOfSymbol in Type) {
+	if(typeof Type === "function") {
+		if(canReflect.hasOwnKey(Type, strictTypeOfSymbol)) {
+			return Type[strictTypeOfSymbol];
+		}
+	} else if(strictTypeOfSymbol in Type) {
 		return Type[strictTypeOfSymbol];
 	}
 	return makeBaseType(Type);
