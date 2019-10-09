@@ -1,6 +1,6 @@
 {
   "name": "can-type",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Type definitions",
   "homepage": "https://canjs.com/doc/can-type.html",
   "repository": {
@@ -32,6 +32,7 @@
     "types"
   ],
   "dependencies": {
+    "can-namespace": "^1.0.0",
     "can-reflect": "^1.17.10",
     "can-string": "^1.1.0",
     "can-symbol": "^1.6.5"
