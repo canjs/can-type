@@ -126,66 +126,6 @@ canReflect.each({
 	makePrimitiveType(Type, typeString);
 });
 
-function makeCache(fn) {
-	var cache = new WeakMap();
-	return function(Type) {
-		if(cache.has(Type)) {
-			return cache.get(Type);
-		}
-		var typeObject = fn.call(this, Type);
-		cache.set(Type, typeObject);
-		return typeObject;
-	};
-}
-
-exports.check = makeCache(function(Type) {
-	var o = Object.create(getBaseType(Type));
-	o[newSymbol] = strictNew;
-	inheritFrom(o, Type, isMemberSymbol);
-	inheritFrom(o, Type, getSchemaSymbol);
-	canReflect.setName(o, wrapName("check", Type));
-	return o;
-});
-
-exports.convert = makeCache(function(Type) {
-	var o = Object.create(getBaseType(Type));
-	inheritFrom(o, Type, isMemberSymbol);
-	inheritFrom(o, Type, getSchemaSymbol);
-	canReflect.setName(o, wrapName("convert", Type));
-	return o;
-});
-
-exports.maybe = makeCache(function(Type) {
-	var baseType = getBaseType(Type);
-	var desc = {};
-	desc[newSymbol] = {
-		value: strictNew
-	};
-	desc[isMemberSymbol] = {
-		value: makeMaybe(baseType)
-	};
-	desc[getSchemaSymbol] = {
-		value: makeMaybeSchema(baseType)
-	};
-	var o = Object.create(baseType, desc);
-	canReflect.setName(o, wrapName("maybe", Type));
-	return o;
-});
-
-exports.maybeConvert = makeCache(function(Type) {
-	var baseType = getBaseType(Type);
-	var desc = {};
-	desc[isMemberSymbol] = {
-		value: makeMaybe(baseType)
-	};
-	desc[getSchemaSymbol] = {
-		value: makeMaybeSchema(baseType)
-	};
-	var o = Object.create(baseType, desc);
-	canReflect.setName(o, wrapName("maybeConvert", Type));
-	return o;
-});
-
 function isTypeObject(Type) {
 	if(canReflect.isPrimitive(Type)) {
 		return false;
@@ -255,6 +195,78 @@ function all(typeFn, Type) {
 	return Constructor;
 }
 
+var Integer = {};
+Integer[newSymbol] = function(value) {
+	return parseInt(value);
+};
+Integer[isMemberSymbol] = function(value) {
+	// “polyfill” for Number.isInteger because it’s not supported in IE11
+	return typeof value === "number" && isFinite(value) &&
+		Math.floor(value) === value;
+};
+Integer[getSchemaSymbol] = makeSchema([Integer]);
+canReflect.setName(Integer, "Integer");
+
+function makeCache(fn) {
+	var cache = new WeakMap();
+	return function(Type) {
+		if(cache.has(Type)) {
+			return cache.get(Type);
+		}
+		var typeObject = fn.call(this, Type);
+		cache.set(Type, typeObject);
+		return typeObject;
+	};
+}
+
+exports.check = makeCache(function(Type) {
+	var o = Object.create(getBaseType(Type));
+	o[newSymbol] = strictNew;
+	inheritFrom(o, Type, isMemberSymbol);
+	inheritFrom(o, Type, getSchemaSymbol);
+	canReflect.setName(o, wrapName("check", Type));
+	return o;
+});
+
+exports.convert = makeCache(function(Type) {
+	var o = Object.create(getBaseType(Type));
+	inheritFrom(o, Type, isMemberSymbol);
+	inheritFrom(o, Type, getSchemaSymbol);
+	canReflect.setName(o, wrapName("convert", Type));
+	return o;
+});
+
+exports.maybe = makeCache(function(Type) {
+	var baseType = getBaseType(Type);
+	var desc = {};
+	desc[newSymbol] = {
+		value: strictNew
+	};
+	desc[isMemberSymbol] = {
+		value: makeMaybe(baseType)
+	};
+	desc[getSchemaSymbol] = {
+		value: makeMaybeSchema(baseType)
+	};
+	var o = Object.create(baseType, desc);
+	canReflect.setName(o, wrapName("maybe", Type));
+	return o;
+});
+
+exports.maybeConvert = makeCache(function(Type) {
+	var baseType = getBaseType(Type);
+	var desc = {};
+	desc[isMemberSymbol] = {
+		value: makeMaybe(baseType)
+	};
+	desc[getSchemaSymbol] = {
+		value: makeMaybeSchema(baseType)
+	};
+	var o = Object.create(baseType, desc);
+	canReflect.setName(o, wrapName("maybeConvert", Type));
+	return o;
+});
+
 // type checking should not throw in production
 if(process.env.NODE_ENV === 'production') {
 	exports.check = exports.convert;
@@ -262,6 +274,8 @@ if(process.env.NODE_ENV === 'production') {
 }
 
 exports.Any = Any;
+exports.Integer = Integer;
+
 exports.late = late;
 exports.isTypeObject = isTypeObject;
 exports.normalize = normalize;

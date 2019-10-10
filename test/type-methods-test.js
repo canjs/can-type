@@ -107,7 +107,7 @@ Integer[isMemberSymbol] = function(value) {
 	// “polyfill” for Number.isInteger because it’s not supported in IE11
 	return typeof value === "number" && isFinite(value) && Math.floor(value) === value;
 };
-canReflect.setName(Integer, "Integer");
+canReflect.setName(Integer, "CustomInteger");
 
 var testCases = [
 	{ Type: Boolean, value: true },
@@ -193,6 +193,13 @@ var testCases = [
 		convert: checkNumber(44),
 		maybeConvert: checkNumber(44),
 		check: throwsBecauseOfWrongType,
+		maybe: throwsBecauseOfWrongType
+	},
+	{
+		Type: type.Integer, value: 33.3,
+		check: throwsBecauseOfWrongType,
+		convert: checkNumber(33),
+		maybeConvert: checkNumber(33),
 		maybe: throwsBecauseOfWrongType
 	}
 ];

@@ -1,5 +1,5 @@
 @property {can-type.typeobject} can-type.any Any
-@parent can-type/types
+@parent can-type/types 0
 @description The `Any` type represents any type.
 
 @signature `type.Any`
