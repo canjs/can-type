@@ -1,5 +1,5 @@
 @typedef {{}} can-type.typeobject TypeObject
-@parent can-type/types
+@parent can-type/types 2
 @description An object describing how to test membership for and convert to a specified type.
 
 @option {function(value)} can.new A function that returns an instance of a type using the provided `value`.
