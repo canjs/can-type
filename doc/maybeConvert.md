@@ -7,22 +7,31 @@
   Given a type, returns a [can-type.typeobject] that will check values against that type. Coerces if the value is not of the provided type or `null` or `undefined`.
 
   ```js
-  import { Reflect, type } from "can/everything";
+  import { ObservableObject, type } from "can";
 
-  let val = Reflect.convert(42, type.maybeConvert(Number));
-  console.log(val); // -> 42
+  class Person extends ObservableObject {
+    static props = {
+      age: maybeConvert(Number)
+    };
+  }
 
-  val = Reflect.convert(null, type.maybeConvert(Number));
-  console.log(val); // -> null
+  let person = new Person();
+  person.age = 42; // -> 42
 
-  val = Reflect.convert(undefined, type.maybeConvert(Number));
-  console.log(val); // -> undefined
+  person.age = null; // -> null
 
-  val = Reflect.convert("42", type.maybeConvert(Number));
-  console.log(val); // -> 42
+  person.age = undefined; // -> undefined
+
+  person.age = "42"; // -> 42
   ```
   @codepen
 
   @param {Function} Type A constructor function that values will be checked against.
 
   @return {can-type.typeobject} A [can-type.typeobject] which will enforce conversion to the given type.
+
+@body
+
+## Use Case
+
+Like with [can-type/convert], __type.maybeConvert__ is particularly useful when building models for service layers (like with [can-rest-model] and [can-realtime-rest-model]. Some server-side data layers will transfer empty values in database as either `null` or `undefined`. Using type.maybeConvert will prevent these values from throwing, but also attempt to convert them when a value does exist.

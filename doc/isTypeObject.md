@@ -9,7 +9,7 @@
   * `Symbol.for("can.isMember")`
 
   ```js
-  import { ObservableObject, type } from "can/everything";
+  import { ObservableObject, type } from "can";
 
   class Faves extends ObservableObject {}
 

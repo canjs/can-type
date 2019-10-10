@@ -6,94 +6,146 @@
 @package ../package.json
 @outline 2
 
+@description Define types that can verify values are of the correct type, or convert values to the correct type.
+
+@type {Object}
+
+  Exports an object with methods related to type operations like checking and conversion. The following describes the properties and methods on the export.
+
+  ```js
+  {
+    check,        // Create a type that throws if
+                  // a value of another type is passed.
+    convert,      // Create a type that will convert a
+                  // value to that type.
+    maybe,        // Create a type that accepts the type,
+                  // null, or undefined.
+    maybeConvert  // Create a type that will convert a value,
+                  // unless null or undefined.
+    Any,          // A type that represents any type.
+    late,         // Define a function that will return a
+                  // type later.
+    convertAll,   // Create type where all properties are
+                  // converted to their given type.
+    isTypeObject  // Test if an object is a typeObject known
+                  // to can-type's type system.
+  }
+  ```
+
 @body
 
-## Overview
+## Use Cases
 
-Use can-type to define rules around types to handle type checking and type conversion. Works well with [can-define], [can-observable-object], and [can-stache-element].
+Use can-type to define rules around types to handle type checking and type conversion. Works well with [can-observable-object], and [can-stache-element], [can-define].
 
-can-type specifies the following type functions:
+can-type works well for the following scenarios:
 
-### type.maybe
+### Prevent wrong types from being passed
 
-Use [can-type/maybe] to specify a [can-type.typeobject] which will accept a value that is a member of the provided type, or is `undefined` or `null`.
+Using [can-type/check] you can ensure that properties of the wrong type are not passed to your components. If a value of any other type is passed it will throw (in development mode) and let the developer know the mistake they made.
 
 ```js
-import { Reflect, type } from "can";
+import { ObservableObject, type } from "can";
 
-const NumberType = type.maybe(Number);
+class Person extends ObservableObject {
+  static props = {
+    name: type.check(String)
+  };
+}
 
-let val = Reflect.convert(42, NumberType);
-console.log(val); // -> 42
+let person = new Person();
 
-val = Reflect.convert(null, NumberType);
-console.log(val); // -> null
+person.name = "Thomas";
+console.log(person.name); // -> "Thomas"
 
-val = Reflect.convert(undefined, NumberType);
-console.log(val); // -> undefined
-
-Reflect.convert("hello world", NumberType); // throws!
+person.name = null; // throws!
 ```
 @codepen
 
-### type.convert
+### Convert a value to a type
 
-Use [can-type/convert] to define a [can-type.typeobject] which will *coerce* the value to the provided type.
+Using [can-type/convert] you can define a property that will *convert* any value to that type.
+
+In the following example we have a text input, which will always have a string value, bound to a property of type `type.maybe(Number)`. This converts that value to a [Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number):
 
 ```js
-import { Reflect, type } from "can";
+import { StacheElement, type } from "can";
 
-const NumberType = type.convert(Number);
+class PersonForm extends StacheElement {
+  static view = `
+    <input type="text" value:to="this.age">
+  `;
 
-let val = Reflect.convert("42", NumberType);
-console.log(val); // -> 42
+  static props = {
+    age: type.convert(Number)
+  };
+}
+
+customElements.define("person-form", PersonForm);
+let el = new PersonForm();
+document.body.append(el);
+
+el.listenTo("age", () => {
+  console.log("Age is now", el.age);
+});
 ```
 @codepen
 
-### type.maybeConvert
 
-Use [can-type/maybeConvert] to define a [can-type.typeobject] which will *coerce* the value to the type, but also accept values of `null` and `undefined`.
+### Allowing null/undefined as values
+
+Using [can-type/maybe] you can define types that also allow null/undefined. This is useful when dealing with data sources, such as APIs, where a value might be optional.
+
+This type is *strict* in that any value with a type other than the provided type, `null`, or `undefined` will result in it throwing.
 
 ```js
-import { Reflect, type } from "can";
+import { ObservableObject, type } from "can";
 
-const DateType = type.maybeConvert(Date);
+class Person extends ObservableObject {
+  static props = {
+    first: type.check(String),
+    last: type.maybe(String)
+  };
+}
 
-const date = new Date();
+let person = new Person({
+  first: "Ted",
+  last: null
+});
 
-let val = Reflect.convert(date, DateType);
-console.log(val); // -> date
-
-val = Reflect.convert(null, DateType);
-console.log(val); // -> null
-
-val = Reflect.convert(undefined, DateType);
-console.log(val); // -> undefined
-
-val = Reflect.convert("12/04/1433", DateType);
-console.log(val); // -> Date{12/04/1433}
+console.log(person.first, person.last); // -> "Ted" null
 ```
 @codepen
 
-### type.check
+### Converting a value to a type if not null/undefined
 
-Use [can-type/check] to specify a strongly typed [can-type.typeobject] that verifies the value passed is of the same type.
+[can-type/maybeConvert] is a combination of [can-type/maybe] and [can-type/convert]. It will allow `null` or `undefined` as values, but otherwise will try to *convert* the value to the correct type.
 
 ```js
-import { Reflect, type } from "can";
+import { ObservableObject, type } from "can";
 
-const StringType = type.check(String);
+class ContactInfo extends ObservableObject {
+  static props = {
+    phoneNumber: type.maybeConvert(String)
+  };
+}
 
-let val = Reflect.convert("hello world", StringType);
-console.log(val); // -> hello world
+let info = new ContactInfo({
+  phoneNumber: undefined
+});
 
-Reflect.convert(42, StringType); // throws!
+console.log(info.phoneNumber); // -> undefined
+
+info.phoneNumber = 5553335555;
+console.log(info.phoneNumber); // -> "5553335555"
 ```
 @codepen
 
-## Creating Models and ViewModels
+### Creating Models and Components
 
-can-type is useful for creating typed properties in [can-observable-object]. You might want to use stricter type checking for some properties or classes and looser type checking for others. The following creates properties with various properties and type methods:
+can-type is useful for creating typed properties in [can-observable-object] and [can-stache-element].
+
+You might want to use stricter type checking for some properties or classes and looser type checking for others. The following creates properties with various properties and type methods:
 
 ```js
 import { ObservableObject, type } from "can";
