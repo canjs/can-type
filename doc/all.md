@@ -7,7 +7,7 @@
   Create a new type that inherits the same properties of `Type`, but with each property run through the converter function. The converter function should be one of [can-type/check], [can-type/maybe], [can-type/convert], or [can-type/maybeConvert].
 
   ```js
-  import { ObservableObject, Reflect, type } from "can/everything";
+  import { ObservableObject, Reflect, type } from "can";
 
   class Person extends ObservableObject {
     static props = {

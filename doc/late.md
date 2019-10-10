@@ -6,7 +6,7 @@
   Given a function, returns a [can-type.typeobject] that will unwrap to the underlying type provided within `fn`.
 
   ```js
-  import { ObservableObject, type } from "can/everything";
+  import { ObservableObject, type } from "can";
 
   class Faves extends ObservableObject {
     static props = {

@@ -7,7 +7,7 @@
   Create a new type that inherits the same properties of `Type`, but where each property on the `Type` is converted, rather than being strictly checked.
 
   ```js
-  import { ObservableObject, Reflect, type } from "can/everything";
+  import { ObservableObject, Reflect, type } from "can";
 
   class Person extends ObservableObject {
     static props = {
@@ -44,7 +44,7 @@ This function is useful to create derived types where any strict types are ignor
 One example is using [can-fixture.store], which will provide string values in some cases. `type.convertAll` can be used to create a type where this works.
 
 ```js
-import { fixture, ObservableObject, type } from "can/everything";
+import { fixture, ObservableObject, type } from "can";
 
 class Person extends ObservableObject {
   static props = {

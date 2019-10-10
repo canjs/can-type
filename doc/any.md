@@ -7,30 +7,46 @@
   Like an [identity function](https://en.wikipedia.org/wiki/Identity_function), `type.Any` is a [can-type.typeobject] that allows any type of a value to be allowed without checking or coercion.
 
   ```js
-  import { Reflect, type } from "can/everything";
+  import { ObservableObject, type } from "can";
 
-  let val = Reflect.convert(42, type.Any);
-  console.log(val); // -> 42
+  class EnvironmentVariable extends ObservableObject {
+    static props = {
+      value: type.Any
+    };
+  }
 
-  val = Reflect.convert(null, type.Any);
-  console.log(val); // -> null
+  let env = new EnvironmentVariable();
+  env.value = 42;
+  console.log(env.value); // -> 42
 
-  val = Reflect.convert([], type.Any);
-  console.log(val); // -> []
+  env.value = null;
+  console.log(env.value); // -> null
 
-  val = Reflect.convert(new Date(), type.Any);
-  console.log(val); // Date()
+  env.value = [];
+  console.log(env.value); // -> []
+
+  env.value = new Date();
+  console.log(env.value); // -> Date
   ```
   @codepen
 
   `type.Any` returns the same instance as passed into [can-reflect.convert] so they are referentially identical.
 
   ```js
-  import { Reflect, type } from "can/everything";
+  import { ObservableObject, type } from "can";
+
+  class Schedule extends ObservableObject {
+    static props = {
+      firstPeriod: type.Any
+    };
+  }
 
   let today = new Date();
+  let sched = new Schedule();
+  
+  sched.firstPeriod = today;
 
-  let val = Reflect.convert(today, type.Any);
-  console.log(val); // today
+  console.log(sched.firstPeriod === today); // -> true
+  console.log(sched.firstPeriod); // -> today
   ```
   @codepen

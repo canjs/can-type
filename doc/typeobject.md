@@ -11,7 +11,7 @@
 A `TypeObject` is any object which conforms to this API:
 
 ```js
-import { Reflect } from "can/everything";
+import { Reflect } from "can";
 
 const dateType = {
   [Symbol.for("can.new")](value) {
