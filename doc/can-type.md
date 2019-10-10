@@ -14,21 +14,33 @@
 
   ```js
   {
-    check,        // Create a type that throws if
-                  // a value of another type is passed.
-    convert,      // Create a type that will convert a
-                  // value to that type.
-    maybe,        // Create a type that accepts the type,
-                  // null, or undefined.
-    maybeConvert  // Create a type that will convert a value,
-                  // unless null or undefined.
-    Any,          // A type that represents any type.
-    late,         // Define a function that will return a
-                  // type later.
-    convertAll,   // Create type where all properties are
-                  // converted to their given type.
-    isTypeObject  // Test if an object is a typeObject known
-                  // to can-type's type system.
+    // Create a type that throws ifa value of another type
+    // is passed.
+    check( Type ),
+
+    // Create a type that will convert a value to that type.
+    convert( Type ),
+
+    // Create a type that accepts the type, null, or undefined.
+    maybe( Type ),
+
+    // Create a type that will convert a value,
+    // unless null or undefined.
+    maybeConvert( Type ),
+
+    // A type that represents any type.
+    Any,
+
+    // Define a function that will return a type later.
+    late( fn ),
+
+    // Create type where all properties are converted
+    // to their given type.
+    convertAll( Type ),
+
+    // Test if an object is a typeObject known to can-type's
+    // type system.
+    isTypeObject( Type )
   }
   ```
 
