@@ -197,14 +197,17 @@ function all(typeFn, Type) {
 
 var Integer = {};
 Integer[newSymbol] = function(value) {
-	return parseInt(value);
+	// parseInt(notANumber) returns NaN
+	// Since we always want an integer returned
+	// using |0 instead.
+	return value | 0;
 };
 Integer[isMemberSymbol] = function(value) {
 	// “polyfill” for Number.isInteger because it’s not supported in IE11
 	return typeof value === "number" && isFinite(value) &&
 		Math.floor(value) === value;
 };
-Integer[getSchemaSymbol] = makeSchema([Integer]);
+Integer[getSchemaSymbol] = makeSchema([Number]);
 canReflect.setName(Integer, "Integer");
 
 function makeCache(fn) {

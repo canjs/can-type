@@ -3,6 +3,7 @@ var canReflect = require("can-reflect");
 var type = require("../can-type");
 var QUnit = require("steal-qunit");
 var dev = require("can-test-helpers").dev;
+var QueryLogic = require("can-query-logic");
 
 var newSymbol = canSymbol.for("can.new");
 var isMemberSymbol = canSymbol.for("can.isMember");
@@ -428,4 +429,36 @@ QUnit.test("Subtypes convert correctly", function(assert) {
 
 	var frog = canReflect.convert({}, ConvertingFrog);
 	assert.ok(frog instanceof Frog, "a frog is a frog");
+});
+
+QUnit.test("Integer works with can-query-logic", function(assert) {
+	var schema = {
+		type: "map",
+		identity: [],
+		keys: {
+			int: type.Integer
+		}
+	};
+
+	var ql = new QueryLogic(schema);
+	var ism = ql.isMember(
+		{ filter: { int: {$gte: 5} } },
+		{int: 5}
+	);
+
+	assert.equal(ism, true, "numbers are integers");
+});
+
+QUnit.test("Integer able to convert non-numbers", function(assert) {
+	var res = canReflect.convert({}, type.Integer);
+	assert.equal(res, 0, "converts to 0");
+
+	res = canReflect.convert(33.3, type.Integer);
+	assert.equal(res, 33, "converts numbers right still");
+
+	res = canReflect.convert("33", type.Integer);
+	assert.equal(res, 33, "converts strings");
+
+	res = canReflect.convert(NaN, type.Integer);
+	assert.equal(res, 0, "defaults to 0");
 });

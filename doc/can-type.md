@@ -14,7 +14,7 @@
 
   ```js
   {
-    // Create a type that throws ifa value of another type
+    // Create a type that throws if a value of another type
     // is passed.
     check( Type ),
 
@@ -52,7 +52,7 @@ Use can-type to define rules around types to handle type checking and type conve
 
 can-type works well for the following scenarios:
 
-### Prevent wrong types from being passed
+### Prevent incorrect types from being passed
 
 Using [can-type/check] you can ensure that properties of the wrong type are not passed to your components. If a value of any other type is passed it will throw (in development mode) and let the developer know the mistake they made.
 
@@ -80,7 +80,7 @@ person.name = null; // throws!
 
 Using [can-type/convert] you can define a property that will *convert* any value to that type.
 
-In the following example we have a text input, which will always have a string value, bound to a property of type `type.maybe(Number)`. This converts that value to a [Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number):
+In the following example we have a text input, which will always have a string value, bound to a property of type `type.convert(Number)`. This converts that value to a [Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number):
 
 ```js
 import { StacheElement, type } from "can";
