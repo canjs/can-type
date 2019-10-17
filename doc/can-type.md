@@ -74,6 +74,8 @@ person.name = null; // throws!
 ```
 @codepen
 
+> Note: Instead of using `name: type.check(String)` above, `name: String` could be used. If a type is provided (example: `type: Date`), `type.check()` is performed by default (example: `type: type.check(Date)`).  
+
 ### Convert a value to a type
 
 Using [can-type/convert] you can define a property that will *convert* any value to that type.
