@@ -2,6 +2,7 @@ var canReflect = require("can-reflect");
 var type = require("../can-type");
 var QUnit = require("steal-qunit");
 var dev = require("can-test-helpers").dev;
+var CanTypeError = require('../can-type-error');
 
 QUnit.module('can-type - Type errors');
 
@@ -24,4 +25,14 @@ testCases.forEach(function(testCase) {
 			assert.equal(error.message, testCase.value + ' (' + typeName + ') is not of type ' + expectedTypeName + '.');
 		}
 	});
+});
+
+
+QUnit.only('Throws CanTypeError on the wrong type', function(assert) {
+	var numberStrictType = type.check(Number);
+	try {
+		canReflect.convert('foo', numberStrictType);
+	} catch (error) {
+		assert.ok(error instanceof CanTypeError);
+	}
 });
