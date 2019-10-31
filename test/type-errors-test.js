@@ -28,7 +28,7 @@ testCases.forEach(function(testCase) {
 });
 
 
-QUnit.only('Throws CanTypeError on the wrong type', function(assert) {
+dev.devOnlyTest('Throws CanTypeError on the wrong type', function(assert) {
 	var numberStrictType = type.check(Number);
 	try {
 		canReflect.convert('foo', numberStrictType);
