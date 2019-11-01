@@ -2,7 +2,6 @@ var canReflect = require("can-reflect");
 var canSymbol = require("can-symbol");
 var canString = require("can-string");
 var namespace = require("can-namespace");
-var CanTypeError = require("./can-type-error");
 
 var isMemberSymbol = canSymbol.for("can.isMember");
 var newSymbol = canSymbol.for("can.new");
@@ -50,7 +49,9 @@ var maybeValues = Object.freeze([null, undefined]);
 
 function check(Type, val) {
 	var valueType = canString.capitalize(typeof val);
-	throw new CanTypeError('Type value ' + typeof val === "string" ? '"' + val + '"' : val + ' (' + valueType + ') is not of type ' + canReflect.getName(Type) + '.'	);
+	var error = new Error('Type value ' + typeof val === "string" ? '"' + val + '"' : val + ' (' + valueType + ') is not of type ' + canReflect.getName(Type) + '.'	);
+	error.type = 'can-type-error';
+	throw error;
 }
 
 function makeIsMember(Type) {
