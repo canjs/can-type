@@ -49,7 +49,9 @@ var maybeValues = Object.freeze([null, undefined]);
 
 function check(Type, val) {
 	var valueType = canString.capitalize(typeof val);
-	throw new Error('Type value ' + typeof val === "string" ? '"' + val + '"' : val + ' (' + valueType + ') is not of type ' + canReflect.getName(Type) + '.'	);
+	var error = new Error('Type value ' + typeof val === "string" ? '"' + val + '"' : val + ' (' + valueType + ') is not of type ' + canReflect.getName(Type) + '.'	);
+	error.type = 'can-type-error';
+	throw error;
 }
 
 function makeIsMember(Type) {

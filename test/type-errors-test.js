@@ -25,3 +25,13 @@ testCases.forEach(function(testCase) {
 		}
 	});
 });
+
+
+dev.devOnlyTest('Throws Error with ".type" value to "can-type-error"', function(assert) {
+	var numberStrictType = type.check(Number);
+	try {
+		canReflect.convert('foo', numberStrictType);
+	} catch (error) {
+		assert.equal(error.type, 'can-type-error');
+	}
+});
