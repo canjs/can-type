@@ -272,11 +272,13 @@ exports.maybeConvert = makeCache(function(Type) {
 	return o;
 });
 
+//!steal-remove-start
 // type checking should not throw in production
 if(process.env.NODE_ENV === 'production') {
 	exports.check = exports.convert;
 	exports.maybe = exports.maybeConvert;
 }
+//!steal-remove-end
 
 exports.Any = Any;
 exports.Integer = Integer;
