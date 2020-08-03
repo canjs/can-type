@@ -2,7 +2,7 @@
 @parent can-type/methods 3
 @description Create a converting [can-type.typeobject] that also accepts `null` and `undefined`.
 
-@signature `type.maybe(Type)`
+@signature `type.maybeConvert(Type)`
 
   Given a type, returns a [can-type.typeobject] that will check values against that type. Coerces if the value is not of the provided type or `null` or `undefined`.
 
