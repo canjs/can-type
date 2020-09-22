@@ -11,7 +11,7 @@
 
   class Person extends ObservableObject {
     static props = {
-      age: maybeConvert(Number)
+      age: type.maybeConvert(Number)
     };
   }
 
